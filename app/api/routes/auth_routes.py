@@ -14,7 +14,6 @@ from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-# -- 1) Dependency pour extraire et valider le token --
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
@@ -59,7 +58,6 @@ async def get_current_user(
     return UserResponse.model_validate(user)
 
 
-# -- 2) Login / Token --
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """
     Create a JSON Web Token (JWT) access token.
@@ -83,7 +81,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 def create_refresh_token(user_id: int, db: Session):
-    # Generate a secure token
     """
     Create a new refresh token for a user.
 
@@ -298,7 +295,6 @@ def register_user(user_data: UserCreateDTO, db: Session = Depends(get_db)):
     return user
 
 
-# -- 4) Nouvel endpoint /me --
 @router.get("/me", response_model=UserResponse)
 async def read_current_user(current_user: UserResponse = Depends(get_current_user)):
     """
@@ -343,7 +339,6 @@ async def edit_current_user(
     return updated_user
 
 
-# -- 5) Endpoint pour supprimer un user --
 @router.delete("/remove", status_code=204)
 async def remove_current_user(
     db: Session = Depends(get_db),
