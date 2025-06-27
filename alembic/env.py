@@ -9,6 +9,7 @@ from app.db.base import Base
 # Import all models so Alembic can detect them
 # Import the Base class first
 from app.db.models.user import User
+from app.db.models.refresh_token import RefreshToken
 
 # This is the Alembic Config object
 config = context.config
