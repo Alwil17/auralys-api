@@ -1,7 +1,7 @@
-# 🤝 Contributing to FastAPI Rating System
+# 🤝 Contributing to Auralys - Mental Wellness Tracking API
 
-Thank you for your interest in contributing!  
-We welcome all improvements, bug fixes, documentation, and ideas.
+Thank you for your interest in contributing to Auralys!  
+We welcome all improvements, bug fixes, documentation, and ideas for this mental wellness tracking backend.
 
 ---
 
@@ -12,8 +12,8 @@ We welcome all improvements, bug fixes, documentation, and ideas.
 
 2. **Clone your fork**
    ```bash
-   git clone https://github.com/Alwil17/rating-api.git
-   cd rating-api
+   git clone https://github.com/YOUR_USERNAME/auralys_api.git
+   cd auralys_api
    ```
 
 3. **Create a new branch**
@@ -30,7 +30,8 @@ We welcome all improvements, bug fixes, documentation, and ideas.
 
 5. **Make your changes**
    - Add features, fix bugs, or improve documentation.
-   - Follow the project’s code style and structure.
+   - Follow the project's Clean/Hexagonal Architecture principles.
+   - Ensure changes align with mental wellness tracking objectives.
 
 6. **Test your changes**
    ```bash
@@ -60,15 +61,16 @@ We welcome all improvements, bug fixes, documentation, and ideas.
   - For documentation: `docs/short-description`
   - Example:  
     ```
-    git checkout -b feat/user-authentication
-    git checkout -b bugfix/fix-rating-validation
+    git checkout -b feat/mood-analytics-endpoint
+    git checkout -b bugfix/fix-jwt-validation
+    git checkout -b feat/nlp-sentiment-analysis
     ```
 
 - **Pull Request Guidelines:**
-  - Use a clear and descriptive title (e.g. `feat: add user authentication endpoint`)
+  - Use a clear and descriptive title (e.g. `feat: add mood trend analysis endpoint`)
   - In the PR description, explain **what** you changed and **why**
   - Reference related issues by number if applicable (e.g. `Closes #42`)
-  - Make sure your branch is up to date with the target branch (usually `devmain` or `main`)
+  - Make sure your branch is up to date with the target branch (usually `main`)
   - Ensure all tests pass before requesting a review
   - Assign reviewers if possible
 
@@ -77,38 +79,68 @@ We welcome all improvements, bug fixes, documentation, and ideas.
 ## 🧑‍💻 Code Style
 
 - Use [PEP8](https://www.python.org/dev/peps/pep-0008/) conventions.
-- Use type hints and docstrings.
+- Use type hints and docstrings for all functions and classes.
+- Follow FastAPI standards (async/await, Depends, response_model).
 - Keep functions and classes small and focused.
+- Use Pydantic models for data validation in schemas/.
+
+---
+
+## 🏗️ Project Structure
+
+When adding new features, follow the established architecture:
+
+- `app/api/routes/` - REST endpoints (auth, mood, chat, recommendations)
+- `app/core/` - Security, configuration, logging
+- `app/repositories/` - Business logic and database access
+- `app/db/models/` - SQLAlchemy models
+- `app/schemas/` - Pydantic models for I/O validation
+- `app/services/` - NLP, recommendation engine, external services
+- `tests/` - Test files with Pytest
 
 ---
 
 ## 🧪 Testing
 
-- Add or update tests for your changes.
+- Add or update tests for your changes in the `tests/` directory.
 - Make sure all tests pass with `pytest`.
-- If you add new endpoints, add corresponding tests in `tests/`.
+- For new API endpoints, add corresponding integration tests.
+- Test edge cases, especially for mental health data handling.
+- Mock external services (Hugging Face API calls, etc.).
 
 ---
 
 ## 📚 Documentation
 
-- Update the `README.md` or docstrings if your change affects usage or API.
-- Add comments to clarify complex code.
+- Update the `README.md` if your change affects setup or usage.
+- Add docstrings to new functions, especially in services/ and repositories/.
+- Document new API endpoints with FastAPI's automatic documentation.
+- Add comments to clarify complex NLP or recommendation logic.
+
+---
+
+## 🔒 Security & Privacy Considerations
+
+- Follow GDPR compliance requirements for user data.
+- Ensure proper JWT token handling and validation.
+- Be mindful of sensitive mental health data in logs and error messages.
+- Use proper database migrations with Alembic for schema changes.
 
 ---
 
 ## 💡 Suggestions & Issues
 
-- For feature requests or bug reports, please [open an issue](https://github.com/Alwil17/rating-api/issues).
-- Be clear and provide as much context as possible.
+- For feature requests or bug reports, please [open an issue](https://github.com/YOUR_USERNAME/auralys_api/issues).
+- Be clear and provide context, especially for mental wellness features.
+- Consider user privacy and data sensitivity in all suggestions.
 
 ---
 
 ## 🛡️ Code of Conduct
 
-Be respectful and constructive.  
+Be respectful and constructive, especially given the sensitive nature of mental health applications.  
 See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) if available.
 
 ---
 
-Thank you for helping make this project better! 🚀
+Thank you for helping make Auralys a better mental wellness platform! 🚀💚
