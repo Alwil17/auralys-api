@@ -2,17 +2,17 @@
 
 ## 📦 Sprint 1 – Auth & socle technique (S1)
 
-- [ ] **Init FastAPI project structure**  
+- [x] **Init FastAPI project structure**  
   _Créer les dossiers : models, schemas, crud, api, core, db, etc._
-- [ ] **Add User model + Alembic migration**  
+- [x] **Add User model + Alembic migration**  
   _Modèle SQLAlchemy avec email, hashed_password, consent, created_at._
-- [ ] **JWT Auth implementation**  
+- [x] **JWT Auth implementation**  
   _Endpoints /register, /login, /me avec JWT._
-- [ ] **Secure password hashing**  
+- [x] **Secure password hashing**  
   _Utiliser passlib pour le hash._
-- [ ] **Add base Pydantic schemas**  
+- [x] **Add base Pydantic schemas**  
   _UserCreate, UserLogin, UserOut._
-- [ ] **Add DB session + settings**  
+- [x] **Add DB session + settings**  
   _Fichier .env, SQLALCHEMY_DATABASE_URL._
 - [ ] **Dockerize backend**  
   _Dockerfile + image buildable localement._
