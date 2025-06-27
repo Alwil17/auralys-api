@@ -5,6 +5,7 @@ class TestSettings(BaseSettings):
     """Test-specific settings that override the base settings"""
     APP_NAME: str = "Auralys API-Test"
     APP_VERSION: str = "0.0.1"
+    APP_DESCRIPTION: str = "Auralys API for mental health management"
     APP_ENV: str = "test"
     APP_SECRET_KEY: str = "test_secret_key"
     APP_DEBUG: bool = True
