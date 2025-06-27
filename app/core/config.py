@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     # Application
     APP_NAME: str = "Auralys API"
     APP_VERSION: str = "0.0.1"
-    APP_DESCRIPTION = "Auralys API for mental health management"
+    APP_DESCRIPTION: str = "Auralys API for mental health management"
     APP_ENV: str = "development"
     APP_SECRET_KEY: str = "super_secret_key"
     APP_DEBUG: bool = True
