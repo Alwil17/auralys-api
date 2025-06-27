@@ -1,0 +1,48 @@
+@startuml
+
+class User {
+    +id: String [PK]
+    +lastname: String
+	+firstname: String
+    +email: String [Unique]
+    +consent: Boolean // 1 = autorise collecte, 0 = local only
+    +created_at: Timestamp
+}
+
+class MoodEntry {
+    +id: String [PK]
+    +user_id: String [FK -> User]
+    +date: String [Unique]
+    +mood: Integer // 1 à 5
+    +notes: String
+    +activity: String
+    +sleep_hours: Real
+    +stress_level: Integer // 1 à 5
+    +collected: Boolean // cloud ?
+}
+
+class ChatHistory {
+    +id: String [PK]
+    +user_id: String [FK -> User]
+    +timestamp: Timestamp
+    +message: String
+    +sender: String // 'user' ou 'bot'
+    +mood_detected: String
+    +collected: Boolean
+}
+
+class Recommendation {
+    +id: String [PK]
+    +user_id: String [FK -> User]
+    +mood_id: String [FK -> MoodEntry]
+    +suggested_activity: String
+    +timestamp: Timestamp
+    +was_helpful: Boolean // Feedback simple
+}
+
+User "1" -- "*" MoodEntry : possède >
+User "1" -- "*" ChatHistory : a des >
+User "1" -- "*" Recommendation : reçoit >
+MoodEntry "1" -- "*" Recommendation : génère >
+
+@enduml
