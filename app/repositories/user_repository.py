@@ -4,10 +4,9 @@ from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 from app.core.security import hash_password
 from app.db.models.user import User
-from app.schemas.user_dto import (
-    UserCreateDTO, UserUpdateDTO
-)
+from app.schemas.user_dto import UserCreateDTO, UserUpdateDTO
 from app.core.config import settings
+
 
 class UserRepository:
     def __init__(self, db: Session):
@@ -22,12 +21,10 @@ class UserRepository:
     def create(self, user_data: UserCreateDTO) -> User:
         hashed_pw = hash_password(user_data.password)
         user = User(
-            name=user_data.name,
-            email=user_data.email,
-            hashed_password=hashed_pw
+            name=user_data.name, email=user_data.email, hashed_password=hashed_pw
         )
 
-        if(settings.APP_DEBUG and ("admin" in user_data.email)):
+        if settings.APP_DEBUG and ("admin" in user_data.email):
             user.role = "admin"
 
         self.db.add(user)
@@ -54,7 +51,7 @@ class UserRepository:
             update_data["hashed_password"] = hash_password(update_data.pop("password"))
         for key, value in update_data.items():
             setattr(user, key, value)
-        
+
         user.updated_at = datetime.now()
         self.db.commit()
         self.db.refresh(user)
@@ -67,4 +64,3 @@ class UserRepository:
         self.db.delete(user)
         self.db.commit()
         return True
-
