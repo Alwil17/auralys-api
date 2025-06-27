@@ -6,6 +6,7 @@ from app.db.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.user_dto import UserCreateDTO, UserUpdateDTO
 
+
 class UserService:
     def __init__(self, db_session: Session):
         self.repository = UserRepository(db_session)
@@ -39,4 +40,3 @@ class UserService:
 
     def delete_user(self, user_id: int) -> bool:
         return self.repository.delete(user_id)
-
