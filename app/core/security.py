@@ -18,6 +18,7 @@ credentials_exception = HTTPException(
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def hash_password(password: str) -> str:
     """Hash a password for storing.
 
@@ -28,6 +29,7 @@ def hash_password(password: str) -> str:
         str: The hashed password
     """
     return pwd_context.hash(password)
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain password against a hashed password.
@@ -41,6 +43,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def verify_token(token: str):
     """Verify a JWT token and return the username if valid.
 
@@ -51,13 +54,16 @@ def verify_token(token: str):
         str: The username if the token is valid, raises credentials_exception otherwise
     """
     try:
-        payload = jwt.decode(token, settings.APP_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        payload = jwt.decode(
+            token, settings.APP_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+        )
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
         return username
     except JWTError:
         raise credentials_exception
+
 
 def get_current_user_role(token: str = Depends(oauth2_scheme)) -> str:
     """Verify a JWT token and return the role if valid.
@@ -69,7 +75,9 @@ def get_current_user_role(token: str = Depends(oauth2_scheme)) -> str:
         str: The role if the token is valid, raises HTTPException otherwise
     """
     try:
-        payload = jwt.decode(token, settings.APP_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        payload = jwt.decode(
+            token, settings.APP_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+        )
         role: str = payload.get("role")
         if role is None:
             raise HTTPException(
@@ -85,6 +93,7 @@ def get_current_user_role(token: str = Depends(oauth2_scheme)) -> str:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+
 def require_role(required_roles: List[str]):
     """
     Requires the user to have one of the given roles to access the route.
@@ -95,6 +104,7 @@ def require_role(required_roles: List[str]):
     Returns:
         Callable: A function that will check if the current user has one of the required roles.
     """
+
     def role_checker(role: str = Depends(get_current_user_role)):
         """
         Checks if the current user's role is within the specified required roles.
@@ -103,7 +113,7 @@ def require_role(required_roles: List[str]):
             role (str): The role of the current user obtained via dependency injection.
 
         Raises:
-            HTTPException: If the user's role is not in the list of required roles, 
+            HTTPException: If the user's role is not in the list of required roles,
                         an HTTP 403 Forbidden error is raised.
 
         Returns:
@@ -115,7 +125,9 @@ def require_role(required_roles: List[str]):
                 detail="Operation not permitted",
             )
         return role
+
     return role_checker
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """
@@ -134,8 +146,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     else:
         expire = datetime.now(tz=timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.APP_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, settings.APP_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+    )
     return encoded_jwt
+
 
 def create_refresh_token(user_id: int, db: Session):
     # Generate a secure token
@@ -150,16 +165,17 @@ def create_refresh_token(user_id: int, db: Session):
         str: The token string.
     """
     token = secrets.token_hex(32)
-    
+
     # Set expiration (longer than access token)
     expires_delta = timedelta(days=7)  # Refresh token valid for 7 days
     expires_at = datetime.now(tz=timezone.utc) + expires_delta
-    
+
     # Store token in database
     token_repo = RefreshTokenRepository(db)
     refresh_token = token_repo.create(user_id, token, expires_at)
-    
+
     return refresh_token.token
+
 
 def verify_refresh_token(token: str, db: Session):
     """
@@ -177,26 +193,26 @@ def verify_refresh_token(token: str, db: Session):
     """
     token_repo = RefreshTokenRepository(db)
     refresh_token = token_repo.get_by_token(token)
-    
+
     if not refresh_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     if refresh_token.revoked:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token has been revoked",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     if refresh_token.expires_at < datetime.now(tz=timezone.utc):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token has expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     return refresh_token.user_id
