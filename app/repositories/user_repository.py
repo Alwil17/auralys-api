@@ -1,6 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Optional
-from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 from app.core.security import hash_password
 from app.db.models.user import User
