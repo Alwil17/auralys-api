@@ -19,7 +19,7 @@ class RefreshTokenRepository:
         Create a new refresh token for a user.
 
         Args:
-            user_id (int): The ID of the user associated with the refresh token.
+            user_id (int): The ID associated with the refresh token.
             token (str): The token string.
             expires_at (datetime): The expiration date and time of the token.
 
