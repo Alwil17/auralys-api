@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 # Force use of test settings
-os.environ["APP_ENV"] = "testing"
+os.environ["APP_ENV"] = "test"
 
 # Import necessary modules
 from app.db.base import Base, get_db
