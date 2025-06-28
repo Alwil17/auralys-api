@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional
-from datetime import datetime, date
+from datetime import datetime
 
 
 class UserCreateDTO(BaseModel):

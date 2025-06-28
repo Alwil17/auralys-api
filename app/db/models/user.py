@@ -13,7 +13,7 @@ class User(Base):
     hashed_password = Column(String(128), nullable=False)  # stocke hashed password
     role = Column(String(50), default="user")
     image_url = Column(String(500), nullable=True)
-    consent = Column(Integer, default=1)  # 1 = autorise collecte, 0 = local only
+    consent = Column(Integer, default=1)  # 1  =autorise collecte, 0 = local
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     updated_at = Column(
         DateTime,
