@@ -26,8 +26,8 @@ async def get_current_user(
     then uses the sub (email) claim to find the associated user in the database
 
     Args:
-        token (str, optional): The JWT token. Defaults to Depends(oauth2_scheme).
-        db (Session, optional): The database session. Defaults to Depends(get_db).
+        token (str, optional): The JWT' token.
+        db (Session, optional): The database session.
 
     Raises:
         HTTPException: If the token is invalid or the user is not found
@@ -63,8 +63,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     Create a JSON Web Token (JWT) access token.
 
     Args:
-        data (dict): A dictionary containing the payload data to encode into the token.
-        expires_delta (Optional[timedelta], optional): The duration for which the token is valid.
+        data (dict): A dictionary containing the payload data
+            to encode into the token.
+        expires_delta (Optional[timedelta], optional):
+            The duration for which the token is valid.
             If None, a default expiration time from settings is used.
 
     Returns:
@@ -108,12 +110,15 @@ def verify_refresh_token(token: str, db: Session):
     """
     Verify the validity of a refresh token.
 
-    This function checks whether a given refresh token is valid, not revoked, and not expired.
-    If the token is invalid, revoked, or expired, an HTTPException is raised with a 401 status code.
+    This function checks whether a given refresh token is valid,
+        not revoked, and not expired.
+    If the token is invalid, revoked, or expired, an HTTPException
+        is raised with a 401 status code.
 
     Args:
         token (str): The refresh token to verify.
-        db (Session): The database session used to access the refresh token repository.
+        db (Session): The database session used
+            to access the refresh token repository.
 
     Raises:
         HTTPException: If the token is invalid, revoked, or expired.
@@ -199,7 +204,8 @@ async def refresh_token(token_data: RefreshTokenRequest, db: Session = Depends(g
 
     Args:
         token_data (RefreshTokenRequest): An object containing the refresh token.
-        db (Session): The database session used to access the refresh token repository and user service.
+        db (Session): The database session used to access the refresh
+            token repository and user service.
 
     Raises:
         HTTPException: If the refresh token is invalid, revoked, expired, or associated user is not found.
