@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import sentry_sdk
 import uvicorn
 from prometheus_fastapi_instrumentator import Instrumentator
-from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 # Importer la dépendance de la base de données
 import app.api.routes.auth_routes as auth_endpoints
@@ -11,7 +9,8 @@ from app.core.config import settings
 
 app = FastAPI(
     title="Auralys API",
-    description="API REST pour le suivi du bien-être mental - authentification, suivi d'humeur, chatbot et recommandations personnalisées.",
+    description="API REST pour le suivi du bien-être mental - "
+    "authentification, suivi d'humeur, chatbot et recommandations personnalisées.",
     version="0.0.1",
 )
 
