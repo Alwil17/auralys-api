@@ -8,7 +8,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
-from app.db.base import Base
+from app.db.models.base import Base
 import uuid
 
 
