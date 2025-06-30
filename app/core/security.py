@@ -21,15 +21,13 @@ credentials_exception = HTTPException(
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> UserResponse:
     try:
         payload = jwt.decode(
-            token,
-            settings.APP_SECRET_KEY,
-            algorithms=[settings.JWT_ALGORITHM]
+            token, settings.APP_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
         email: str = payload.get("sub")
         if email is None:
@@ -43,6 +41,7 @@ def get_current_user(
 
     # On transforme l'entité en schéma de sortie
     return UserResponse.model_validate(user)
+
 
 def hash_password(password: str) -> str:
     """Hash a password for storing.
