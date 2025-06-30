@@ -35,7 +35,7 @@
   _Préparer données de test._
 - [x] **Test: mood submission + listing**  
   _Vérifier insertion + format de réponse._
-- [ ] **Edge case: no consent = reject save**  
+- [x] **Edge case: no consent = reject save**  
   _Test RGPD (user refuse collecte)._
 
 ## 📦 Sprint 3 – Chat + NLP (S3)
