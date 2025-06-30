@@ -12,6 +12,8 @@ os.environ["APP_ENV"] = "test"
 from app.db.base import Base, get_db
 from app.main import app
 from app.core.config_test import test_settings
+from tests.fixtures.mood_fixtures import *
+from tests.utils.test_data_seeder import TestDataSeeder
 
 # Create in-memory SQLite database for tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -100,3 +102,27 @@ def user_auth(client):
         "headers": {"Authorization": f"Bearer {token_data['access_token']}"},
         "refresh_token": token_data["refresh_token"],
     }
+
+
+@pytest.fixture
+def test_data_seeder(db: Session) -> TestDataSeeder:
+    """Fixture pour le seeder de données de test"""
+    return TestDataSeeder(db)
+
+
+@pytest.fixture
+def test_user_with_consent(db: Session, test_data_seeder: TestDataSeeder) -> User:
+    """Utilisateur de test avec consentement"""
+    return test_data_seeder.create_test_user(
+        email="consent@test.com",
+        consent=True
+    )
+
+
+@pytest.fixture
+def test_user_no_consent(db: Session, test_data_seeder: TestDataSeeder) -> User:
+    """Utilisateur de test sans consentement"""
+    return test_data_seeder.create_test_user(
+        email="noconsent@test.com",
+        consent=False
+    )
