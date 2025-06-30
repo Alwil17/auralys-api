@@ -13,7 +13,7 @@ class MoodRepository:
 
     def create_mood_entry(self, user_id: str, mood_data: MoodEntryCreate) -> MoodEntry:
         """Créer une nouvelle entrée d'humeur"""
-        db_mood = MoodEntry(user_id=user_id, **mood_data.dict())
+        db_mood = MoodEntry(user_id=user_id, **mood_data.model_dump(exclude_unset=True))
         self.db.add(db_mood)
         self.db.commit()
         self.db.refresh(db_mood)
@@ -69,7 +69,7 @@ class MoodRepository:
         """Mettre à jour une entrée d'humeur"""
         db_mood = self.get_mood_entry_by_id(mood_id)
         if db_mood:
-            update_data = mood_data.dict(exclude_unset=True)
+            update_data = mood_data.model_dump(exclude_unset=True)
             for field, value in update_data.items():
                 setattr(db_mood, field, value)
             self.db.commit()
