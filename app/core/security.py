@@ -7,7 +7,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.config import settings
 from sqlalchemy.orm import Session
+from app.db.base import get_db
 from app.repositories.refresh_token_repository import RefreshTokenRepository
+from app.schemas.user_dto import UserResponse
+from app.services.user_service import UserService
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -15,9 +18,31 @@ credentials_exception = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> UserResponse:
+    try:
+        payload = jwt.decode(
+            token,
+            settings.APP_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM]
+        )
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    user = UserService(db).get_user_by_email(email)
+    if not user:
+        raise credentials_exception
+
+    # On transforme l'entité en schéma de sortie
+    return UserResponse.model_validate(user)
 
 def hash_password(password: str) -> str:
     """Hash a password for storing.
