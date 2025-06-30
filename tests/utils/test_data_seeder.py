@@ -55,53 +55,14 @@ class TestDataSeeder:
         for i in range(days):
             date = (base_date - timedelta(days=i)).strftime('%Y-%m-%d')
             day_of_week = (base_date - timedelta(days=i)).weekday()
-            
-            # Base mood avec variation naturelle
-            base_mood = 3 + random.uniform(-0.5, 0.5)
-            
-            # Weekend boost
-            if weekend_boost[day_of_week]:
-                base_mood += random.uniform(0.2, 0.8)
-            
-            # Clamp between 1-5
-            mood = max(1, min(5, round(base_mood)))
-            
-            # Corrélation sommeil/humeur
-            if mood >= 4:
-                sleep_hours = random.uniform(7.5, 9.0)
-                stress = random.randint(1, 2)
-            elif mood <= 2:
-                sleep_hours = random.uniform(5.0, 6.5)
-                stress = random.randint(4, 5)
-            else:
-                sleep_hours = random.uniform(6.5, 8.0)
-                stress = random.randint(2, 4)
-            
-            # Activité selon le jour
-            if day_of_week < 5:  # Semaine
-                activity = random.choice(activities_weekday)
-            else:  # Weekend
-                activity = random.choice(activities_weekend)
-            
-            # Notes réalistes
-            notes_templates = [
-                f"Journée {['difficile', 'normale', 'correcte', 'bonne', 'excellente'][mood-1]}",
-                f"Activité: {activity.lower()}",
-                f"Sommeil: {'bien dormi' if sleep_hours >= 7.5 else 'nuit courte'}",
-                f"Stress: {'élevé' if stress >= 4 else 'gérable' if stress >= 3 else 'faible'}"
-            ]
-            notes = f"{random.choice(notes_templates[:2])}, {random.choice(notes_templates[2:])}"
-            
-            mood_entry = MoodEntry(
+            mood_entry = self._generate_mood_entry(
                 user_id=user_id,
                 date=date,
-                mood=mood,
-                notes=notes,
-                activity=activity,
-                sleep_hours=round(sleep_hours, 1),
-                stress_level=stress
+                day_of_week=day_of_week,
+                weekend_boost=weekend_boost,
+                activities_weekday=activities_weekday,
+                activities_weekend=activities_weekend
             )
-            
             self.db.add(mood_entry)
             mood_entries.append(mood_entry)
         
@@ -111,6 +72,61 @@ class TestDataSeeder:
             self.db.refresh(entry)
         
         return mood_entries
+
+    def _generate_mood_entry(
+        self,
+        user_id: str,
+        date: str,
+        day_of_week: int,
+        weekend_boost: list,
+        activities_weekday: list,
+        activities_weekend: list
+    ) -> MoodEntry:
+        # Base mood avec variation naturelle
+        base_mood = 3 + random.uniform(-0.5, 0.5)
+
+        # Weekend boost
+        if weekend_boost[day_of_week]:
+            base_mood += random.uniform(0.2, 0.8)
+
+        # Clamp between 1-5
+        mood = max(1, min(5, round(base_mood)))
+
+        # Corrélation sommeil/humeur
+        if mood >= 4:
+            sleep_hours = random.uniform(7.5, 9.0)
+            stress = random.randint(1, 2)
+        elif mood <= 2:
+            sleep_hours = random.uniform(5.0, 6.5)
+            stress = random.randint(4, 5)
+        else:
+            sleep_hours = random.uniform(6.5, 8.0)
+            stress = random.randint(2, 4)
+
+        # Activité selon le jour
+        if day_of_week < 5:  # Semaine
+            activity = random.choice(activities_weekday)
+        else:  # Weekend
+            activity = random.choice(activities_weekend)
+
+        # Notes réalistes
+        notes_templates = [
+            f"Journée {['difficile', 'normale', 'correcte', 'bonne', 'excellente'][mood-1]}",
+            f"Activité: {activity.lower()}",
+            f"Sommeil: {'bien dormi' if sleep_hours >= 7.5 else 'nuit courte'}",
+            f"Stress: {'élevé' if stress >= 4 else 'gérable' if stress >= 3 else 'faible'}"
+        ]
+        notes = f"{random.choice(notes_templates[:2])}, {random.choice(notes_templates[2:])}"
+
+        return MoodEntry(
+            user_id=user_id,
+            date=date,
+            mood=mood,
+            notes=notes,
+            activity=activity,
+            sleep_hours=round(sleep_hours, 1),
+            stress_level=stress
+        )
     
     def create_mood_trend_data(self, user_id: str, trend: str = "improving") -> List[MoodEntry]:
         """
