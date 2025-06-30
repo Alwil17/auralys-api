@@ -75,13 +75,13 @@ def sample_mood_data() -> List[Dict[str, Any]]:
 
 @pytest.fixture
 def mood_entries_week(
-    db: Session, test_user: User, sample_mood_data: List[Dict]
+    db: Session, test_user_with_consent: User, sample_mood_data: List[Dict]
 ) -> List[MoodEntry]:
     """Créer des entrées d'humeur pour une semaine de test"""
     mood_entries = []
 
     for mood_data in sample_mood_data:
-        mood_entry = MoodEntry(user_id=test_user.id, **mood_data)
+        mood_entry = MoodEntry(user_id=test_user_with_consent.id, **mood_data)
         db.add(mood_entry)
         mood_entries.append(mood_entry)
 
