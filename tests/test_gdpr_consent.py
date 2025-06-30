@@ -19,7 +19,6 @@ class TestGDPRConsent:
         self, db: Session, test_user_no_consent: User, test_data_seeder: TestDataSeeder
     ):
         """Test: création d'humeur rejetée sans consentement RGPD"""
-        # Créer un token pour l'utilisateur sans consentement
         from app.core.security import create_access_token
 
         token = create_access_token(data={"sub": test_user_no_consent.email})
@@ -196,7 +195,7 @@ class TestGDPRConsent:
         """Test: validation du consentement au niveau service"""
         from app.repositories.mood_repository import MoodRepository
         from app.services.mood_service import MoodService
-        from app.schemas.mood import MoodEntryCreate
+        from app.schemas.mood_dto import MoodEntryCreate
         from fastapi import HTTPException
 
         # Créer le service
@@ -269,4 +268,5 @@ class TestGDPRComplianceFeatures:
             .filter(MoodEntry.user_id == test_user_with_consent.id)
             .first()
         )
+        assert mood_entry.collected == True
         assert mood_entry.collected == True
