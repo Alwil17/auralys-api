@@ -25,6 +25,14 @@ class User(Base):
     refresh_tokens = relationship(
         "RefreshToken", back_populates="user", cascade="all, delete-orphan"
     )
+    mood_entries = relationship(
+        "MoodEntry", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
+        """Return a nicely formatted representation of the User model.
+
+        The representation will be in the format of:
+        <User(id=<id>, name='<name>', email='<email>')>
+        """
         return f"<User(id={self.id}, name='{self.name}', email='{self.email}')>"

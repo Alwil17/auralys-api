@@ -14,28 +14,28 @@
   _UserCreate, UserLogin, UserOut._
 - [x] **Add DB session + settings**  
   _Fichier .env, SQLALCHEMY_DATABASE_URL._
-- [ ] **Dockerize backend**  
+- [x] **Dockerize backend**  
   _Dockerfile + image buildable localement._
-- [ ] **Basic CI with pytest + lint**  
+- [x] **Basic CI with pytest + lint**  
   _GitHub Actions : test + black + flake8._
-- [ ] **Test: user registration/login**  
+- [x] **Test: user registration/login**  
   _Tester succès/échec, mot de passe incorrect._
 
 ## 📦 Sprint 2 – MoodEntry & RGPD (S2)
 
-- [ ] **Create MoodEntry model**  
+- [x] **Create MoodEntry model**  
   _Champs : mood, stress, sleep_hours, notes, activity._
-- [ ] **Add MoodEntry schemas**  
+- [x] **Add MoodEntry schemas**  
   _Pydantic : MoodEntryCreate, MoodEntryOut._
 - [ ] **Create endpoints /moods**  
   _GET, POST + filtre par date ou user._
-- [ ] **Add collected flag**  
+- [x] **Add collected flag**  
   _Pour sync local/cloud si consentement._
-- [ ] **Setup test data (dummy moods)**  
+- [x] **Setup test data (dummy moods)**  
   _Préparer données de test._
-- [ ] **Test: mood submission + listing**  
+- [x] **Test: mood submission + listing**  
   _Vérifier insertion + format de réponse._
-- [ ] **Edge case: no consent = reject save**  
+- [x] **Edge case: no consent = reject save**  
   _Test RGPD (user refuse collecte)._
 
 ## 📦 Sprint 3 – Chat + NLP (S3)
