@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, validator
 from typing import Optional
 from datetime import datetime
 
@@ -17,7 +17,7 @@ class MoodEntryBase(BaseModel):
         None, ge=1, le=5, description="Niveau de stress de 1 à 5"
     )
 
-    @validator("date")
+    @field_validator("date")
     def validate_date_format(cls, v):
         try:
             datetime.strptime(v, "%Y-%m-%d")
@@ -43,8 +43,7 @@ class MoodEntryOut(MoodEntryBase):
     user_id: str
     collected: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True, extra='allow')
 
 
 class MoodEntryStats(BaseModel):
