@@ -31,11 +31,11 @@
   _GET, POST + filtre par date ou user._
 - [x] **Add collected flag**  
   _Pour sync local/cloud si consentement._
-- [] **Setup test data (dummy moods)**  
+- [x] **Setup test data (dummy moods)**  
   _Préparer données de test._
-- [] **Test: mood submission + listing**  
+- [x] **Test: mood submission + listing**  
   _Vérifier insertion + format de réponse._
-- [] **Edge case: no consent = reject save**  
+- [ ] **Edge case: no consent = reject save**  
   _Test RGPD (user refuse collecte)._
 
 ## 📦 Sprint 3 – Chat + NLP (S3)
