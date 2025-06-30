@@ -14,6 +14,7 @@ from app.main import app
 from app.core.config_test import test_settings
 from tests.fixtures.mood_fixtures import *
 from tests.utils.test_data_seeder import TestDataSeeder
+from app.core.security import create_access_token
 
 # Create in-memory SQLite database for tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -126,3 +127,23 @@ def test_user_no_consent(db: Session, test_data_seeder: TestDataSeeder) -> User:
         email="noconsent@test.com",
         consent=False
     )
+
+
+@pytest.fixture
+def auth_headers_no_consent(test_user_no_consent: User) -> Dict[str, str]:
+    """Headers d'authentification pour utilisateur sans consentement"""
+    # Simulate JWT token creation for user without consent
+    token = create_access_token(data={"sub": test_user_no_consent.email})
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def auth_headers_other_user(db: Session, test_data_seeder: TestDataSeeder) -> Dict[str, str]:
+    """Headers d'authentification pour un autre utilisateur"""
+    other_user = test_data_seeder.create_test_user(
+        email="other@test.com",
+        firstname="Other",
+        lastname="User"
+    )
+    token = create_access_token(data={"sub": other_user.email})
+    return {"Authorization": f"Bearer {token}"}
