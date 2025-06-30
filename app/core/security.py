@@ -8,9 +8,9 @@ from fastapi.security import OAuth2PasswordBearer
 from app.core.config import settings
 from sqlalchemy.orm import Session
 from app.db.base import get_db
+from app.db.models.user import User
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.schemas.user_dto import UserResponse
-from app.services.user_service import UserService
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -35,7 +35,7 @@ def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = UserService(db).get_user_by_email(email)
+    user = db.query(User).filter(User.email == email).first()
     if not user:
         raise credentials_exception
 
