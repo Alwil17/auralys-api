@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List
 import random
 
 from app.db.models.user import User
 from app.db.models.mood_entry import MoodEntry
-from app.core.security import get_password_hash
+from app.core.security import hash_password
 
 
 class TestDataSeeder:
@@ -17,18 +17,16 @@ class TestDataSeeder:
     def create_test_user(
         self,
         email: str = "test@example.com",
-        firstname: str = "Test",
-        lastname: str = "User",
+        name: str = "Test User",
         consent: bool = True,
     ) -> User:
         """Créer un utilisateur de test"""
         user = User(
             email=email,
-            firstname=firstname,
-            lastname=lastname,
-            hashed_password=get_password_hash("testpassword123"),
+            name=name,
+            hashed_password=hash_password("testpassword123"),
             consent=consent,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         self.db.add(user)
