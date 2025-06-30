@@ -43,14 +43,14 @@ class MoodService:
 
         # Créer l'entrée
         mood_entry = self.mood_repository.create_mood_entry(user.id, mood_data)
-        return MoodEntryOut.from_orm(mood_entry)
+        return MoodEntryOut.model_validate(mood_entry)
 
     def get_user_mood_entries(
         self, user_id: str, skip: int = 0, limit: int = 100
     ) -> List[MoodEntryOut]:
         """Récupérer les entrées d'humeur d'un utilisateur"""
         mood_entries = self.mood_repository.get_user_mood_entries(user_id, skip, limit)
-        return [MoodEntryOut.from_orm(entry) for entry in mood_entries]
+        return [MoodEntryOut.model_validate(entry) for entry in mood_entries]
 
     def get_mood_entry_by_id(self, mood_id: str, user_id: str) -> MoodEntryOut:
         """Récupérer une entrée d'humeur par ID avec vérification de propriété"""
@@ -61,12 +61,13 @@ class MoodService:
                 status_code=status.HTTP_404_NOT_FOUND, detail=MOOD_ENTRY_NOT_FOUND_MSG
             )
 
-        if mood_entry.user_id != user_id:
+        # Convert both IDs to strings for comparison to handle UUID vs string mismatch
+        if str(mood_entry.user_id) != str(user_id):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail=UNAUTHORIZED_ACCESS_MSG
             )
 
-        return MoodEntryOut.from_orm(mood_entry)
+        return MoodEntryOut.model_validate(mood_entry)
 
     def update_mood_entry(
         self, mood_id: str, user_id: str, mood_data: MoodEntryUpdate
@@ -80,13 +81,14 @@ class MoodService:
                 status_code=status.HTTP_404_NOT_FOUND, detail=MOOD_ENTRY_NOT_FOUND_MSG
             )
 
-        if mood_entry.user_id != user_id:
+        # Convert both IDs to strings for comparison
+        if str(mood_entry.user_id) != str(user_id):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail=UNAUTHORIZED_ACCESS_MSG
             )
 
         updated_entry = self.mood_repository.update_mood_entry(mood_id, mood_data)
-        return MoodEntryOut.from_orm(updated_entry)
+        return MoodEntryOut.model_validate(updated_entry)
 
     def delete_mood_entry(self, mood_id: str, user_id: str) -> bool:
         """Supprimer une entrée d'humeur"""
@@ -98,7 +100,8 @@ class MoodService:
                 status_code=status.HTTP_404_NOT_FOUND, detail=MOOD_ENTRY_NOT_FOUND_MSG
             )
 
-        if mood_entry.user_id != user_id:
+        # Convert both IDs to strings for comparison
+        if str(mood_entry.user_id) != str(user_id):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail=UNAUTHORIZED_ACCESS_MSG
             )
@@ -122,7 +125,7 @@ class MoodService:
         mood_entries = self.mood_repository.get_user_mood_entries_by_date_range(
             user_id, start_date, end_date
         )
-        return [MoodEntryOut.from_orm(entry) for entry in mood_entries]
+        return [MoodEntryOut.model_validate(entry) for entry in mood_entries]
 
     def get_user_mood_stats(self, user_id: str, days: int = 7) -> MoodEntryStats:
         """Calculer les statistiques d'humeur d'un utilisateur"""
