@@ -10,16 +10,16 @@ from app.core.security import get_password_hash
 
 class TestDataSeeder:
     """Utilitaire pour créer des données de test"""
-    
+
     def __init__(self, db: Session):
         self.db = db
-    
+
     def create_test_user(
-        self, 
+        self,
         email: str = "test@example.com",
         firstname: str = "Test",
         lastname: str = "User",
-        consent: bool = True
+        consent: bool = True,
     ) -> User:
         """Créer un utilisateur de test"""
         user = User(
@@ -28,16 +28,18 @@ class TestDataSeeder:
             lastname=lastname,
             hashed_password=get_password_hash("testpassword123"),
             consent=consent,
-            created_at=datetime.utcnow()
+            created_at=datetime.utcnow(),
         )
-        
+
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)
-        
+
         return user
-    
-    def create_realistic_mood_data(self, user_id: str, days: int = 30) -> List[MoodEntry]:
+
+    def create_realistic_mood_data(
+        self, user_id: str, days: int = 30
+    ) -> List[MoodEntry]:
         """
         Créer des données d'humeur réalistes avec des patterns
         - Weekends généralement meilleurs
@@ -46,14 +48,14 @@ class TestDataSeeder:
         """
         mood_entries = []
         base_date = datetime.now().date()
-        
+
         # Patterns réalistes
         weekend_boost = [0, 0, 0, 0, 0, 1, 1]  # Boost weekend (sam/dim)
         activities_weekday = ["Travail", "Réunions", "Formation", "Projet"]
         activities_weekend = ["Famille", "Sport", "Loisirs", "Repos", "Social"]
-        
+
         for i in range(days):
-            date = (base_date - timedelta(days=i)).strftime('%Y-%m-%d')
+            date = (base_date - timedelta(days=i)).strftime("%Y-%m-%d")
             day_of_week = (base_date - timedelta(days=i)).weekday()
             mood_entry = self._generate_mood_entry(
                 user_id=user_id,
@@ -61,16 +63,16 @@ class TestDataSeeder:
                 day_of_week=day_of_week,
                 weekend_boost=weekend_boost,
                 activities_weekday=activities_weekday,
-                activities_weekend=activities_weekend
+                activities_weekend=activities_weekend,
             )
             self.db.add(mood_entry)
             mood_entries.append(mood_entry)
-        
+
         self.db.commit()
-        
+
         for entry in mood_entries:
             self.db.refresh(entry)
-        
+
         return mood_entries
 
     def _generate_mood_entry(
@@ -80,7 +82,7 @@ class TestDataSeeder:
         day_of_week: int,
         weekend_boost: list,
         activities_weekday: list,
-        activities_weekend: list
+        activities_weekend: list,
     ) -> MoodEntry:
         # Base mood avec variation naturelle
         base_mood = 3 + random.uniform(-0.5, 0.5)
@@ -114,7 +116,7 @@ class TestDataSeeder:
             f"Journée {['difficile', 'normale', 'correcte', 'bonne', 'excellente'][mood-1]}",
             f"Activité: {activity.lower()}",
             f"Sommeil: {'bien dormi' if sleep_hours >= 7.5 else 'nuit courte'}",
-            f"Stress: {'élevé' if stress >= 4 else 'gérable' if stress >= 3 else 'faible'}"
+            f"Stress: {'élevé' if stress >= 4 else 'gérable' if stress >= 3 else 'faible'}",
         ]
         notes = f"{random.choice(notes_templates[:2])}, {random.choice(notes_templates[2:])}"
 
@@ -125,10 +127,12 @@ class TestDataSeeder:
             notes=notes,
             activity=activity,
             sleep_hours=round(sleep_hours, 1),
-            stress_level=stress
+            stress_level=stress,
         )
-    
-    def create_mood_trend_data(self, user_id: str, trend: str = "improving") -> List[MoodEntry]:
+
+    def create_mood_trend_data(
+        self, user_id: str, trend: str = "improving"
+    ) -> List[MoodEntry]:
         """
         Créer des données avec une tendance spécifique
         trend: 'improving', 'declining', 'stable'
@@ -136,10 +140,10 @@ class TestDataSeeder:
         mood_entries = []
         base_date = datetime.now().date()
         days = 14
-        
+
         for i in range(days):
-            date = (base_date - timedelta(days=i)).strftime('%Y-%m-%d')
-            
+            date = (base_date - timedelta(days=i)).strftime("%Y-%m-%d")
+
             if trend == "improving":
                 # Amélioration progressive
                 progress = (days - i) / days  # 0 to 1
@@ -153,9 +157,9 @@ class TestDataSeeder:
             else:  # stable
                 mood = 3
                 stress = 3
-            
+
             sleep_hours = 6.5 + (mood - 1) * 0.5
-            
+
             mood_entry = MoodEntry(
                 user_id=user_id,
                 date=date,
@@ -163,19 +167,19 @@ class TestDataSeeder:
                 notes=f"Tendance {trend} - jour {i+1}",
                 activity="Test",
                 sleep_hours=sleep_hours,
-                stress_level=stress
+                stress_level=stress,
             )
-            
+
             self.db.add(mood_entry)
             mood_entries.append(mood_entry)
-        
+
         self.db.commit()
-        
+
         for entry in mood_entries:
             self.db.refresh(entry)
-        
+
         return mood_entries
-    
+
     def cleanup_test_data(self):
         """Nettoyer toutes les données de test"""
         self.db.query(MoodEntry).delete()
