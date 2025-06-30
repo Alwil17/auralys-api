@@ -114,19 +114,13 @@ def test_data_seeder(db: Session) -> TestDataSeeder:
 @pytest.fixture
 def test_user_with_consent(db: Session, test_data_seeder: TestDataSeeder) -> User:
     """Utilisateur de test avec consentement"""
-    return test_data_seeder.create_test_user(
-        email="consent@test.com",
-        consent=True
-    )
+    return test_data_seeder.create_test_user(email="consent@test.com", consent=True)
 
 
 @pytest.fixture
 def test_user_no_consent(db: Session, test_data_seeder: TestDataSeeder) -> User:
     """Utilisateur de test sans consentement"""
-    return test_data_seeder.create_test_user(
-        email="noconsent@test.com",
-        consent=False
-    )
+    return test_data_seeder.create_test_user(email="noconsent@test.com", consent=False)
 
 
 @pytest.fixture
@@ -138,12 +132,12 @@ def auth_headers_no_consent(test_user_no_consent: User) -> Dict[str, str]:
 
 
 @pytest.fixture
-def auth_headers_other_user(db: Session, test_data_seeder: TestDataSeeder) -> Dict[str, str]:
+def auth_headers_other_user(
+    db: Session, test_data_seeder: TestDataSeeder
+) -> Dict[str, str]:
     """Headers d'authentification pour un autre utilisateur"""
     other_user = test_data_seeder.create_test_user(
-        email="other@test.com",
-        firstname="Other",
-        lastname="User"
+        email="other@test.com", firstname="Other", lastname="User"
     )
     token = create_access_token(data={"sub": other_user.email})
     return {"Authorization": f"Bearer {token}"}
