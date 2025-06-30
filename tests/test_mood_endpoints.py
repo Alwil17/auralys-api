@@ -24,7 +24,9 @@ class TestMoodSubmission:
     ):
         """Test création réussie d'une entrée d'humeur"""
         response = client.post(
-            "/moods/", json=mood_create_data.model_dump(), headers=auth_headers_with_consent
+            "/moods/",
+            json=mood_create_data.model_dump(),
+            headers=auth_headers_with_consent,
         )
 
         assert response.status_code == 201
@@ -43,7 +45,7 @@ class TestMoodSubmission:
 
         # Vérifier en base de données
         db_mood = db.query(MoodEntry).filter(MoodEntry.id == data["id"]).first()
-        
+
         assert db_mood is not None
         assert db_mood.user_id == str(test_user_with_consent.id)
 
@@ -54,7 +56,9 @@ class TestMoodSubmission:
     ):
         """Test création avec données minimales"""
         response = client.post(
-            "/moods/", json=mood_create_data_minimal.model_dump(), headers=auth_headers_with_consent
+            "/moods/",
+            json=mood_create_data_minimal.model_dump(),
+            headers=auth_headers_with_consent,
         )
 
         assert response.status_code == 201
@@ -73,11 +77,17 @@ class TestMoodSubmission:
     ):
         """Test erreur pour date dupliquée"""
         # Créer la première entrée
-        client.post("/moods/", json=mood_create_data.model_dump(), headers=auth_headers_with_consent)
+        client.post(
+            "/moods/",
+            json=mood_create_data.model_dump(),
+            headers=auth_headers_with_consent,
+        )
 
         # Tentative de création d'une seconde entrée pour la même date
         response = client.post(
-            "/moods/", json=mood_create_data.model_dump(), headers=auth_headers_with_consent
+            "/moods/",
+            json=mood_create_data.model_dump(),
+            headers=auth_headers_with_consent,
         )
 
         assert response.status_code == 400
@@ -90,24 +100,32 @@ class TestMoodSubmission:
     ):
         """Test rejet si pas de consentement RGPD"""
         response = client.post(
-            "/moods/", json=mood_create_data.model_dump(), headers=auth_headers_no_consent
+            "/moods/",
+            json=mood_create_data.model_dump(),
+            headers=auth_headers_no_consent,
         )
 
         assert response.status_code == 403
         assert "Consentement requis" in response.json()["detail"]
 
-    def test_create_mood_entry_invalid_data(self, auth_headers_with_consent: Dict[str, str]):
+    def test_create_mood_entry_invalid_data(
+        self, auth_headers_with_consent: Dict[str, str]
+    ):
         """Test validation des données invalides"""
         # Test mood invalide (hors range 1-5)
         invalid_data = {"date": datetime.now().date().strftime("%Y-%m-%d"), "mood": 6}
 
-        response = client.post("/moods/", json=invalid_data, headers=auth_headers_with_consent)
+        response = client.post(
+            "/moods/", json=invalid_data, headers=auth_headers_with_consent
+        )
         assert response.status_code == 422
 
         # Test date invalide
         invalid_data = {"date": "2023-13-45", "mood": 3}
 
-        response = client.post("/moods/", json=invalid_data, headers=auth_headers_with_consent)
+        response = client.post(
+            "/moods/", json=invalid_data, headers=auth_headers_with_consent
+        )
         assert response.status_code == 422
 
     def test_create_mood_entry_unauthorized(self, mood_create_data: Dict[str, Any]):
@@ -158,13 +176,17 @@ class TestMoodListing:
         test_data_seeder.create_realistic_mood_data(test_user_with_consent.id, 15)
 
         # Test première page
-        response = client.get("/moods/?skip=0&limit=10", headers=auth_headers_with_consent)
+        response = client.get(
+            "/moods/?skip=0&limit=10", headers=auth_headers_with_consent
+        )
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 10
 
         # Test deuxième page
-        response = client.get("/moods/?skip=10&limit=10", headers=auth_headers_with_consent)
+        response = client.get(
+            "/moods/?skip=10&limit=10", headers=auth_headers_with_consent
+        )
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 5
@@ -178,7 +200,8 @@ class TestMoodListing:
         end_date = datetime.now().date().strftime("%Y-%m-%d")
 
         response = client.get(
-            f"/moods/?start_date={start_date}&end_date={end_date}", headers=auth_headers_with_consent
+            f"/moods/?start_date={start_date}&end_date={end_date}",
+            headers=auth_headers_with_consent,
         )
 
         assert response.status_code == 200
@@ -250,9 +273,7 @@ class TestMoodStats:
         data = response.json()
         assert data["total_entries"] == 14
 
-    def test_get_mood_stats_no_data(
-        self, auth_headers_with_consent: Dict[str, str]
-    ):
+    def test_get_mood_stats_no_data(self, auth_headers_with_consent: Dict[str, str]):
         """Test statistiques sans données"""
         response = client.get("/moods/stats", headers=auth_headers_with_consent)
 
@@ -274,7 +295,9 @@ class TestMoodCRUD:
         """Test récupération d'une entrée spécifique"""
         mood_entry = mood_entries_week[0]
 
-        response = client.get(f"/moods/{mood_entry.id}", headers=auth_headers_with_consent)
+        response = client.get(
+            f"/moods/{mood_entry.id}", headers=auth_headers_with_consent
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -294,7 +317,9 @@ class TestMoodCRUD:
         update_data = {"mood": 5, "notes": "Updated notes"}
 
         response = client.put(
-            f"/moods/{mood_entry.id}", json=update_data, headers=auth_headers_with_consent
+            f"/moods/{mood_entry.id}",
+            json=update_data,
+            headers=auth_headers_with_consent,
         )
 
         assert response.status_code == 200
