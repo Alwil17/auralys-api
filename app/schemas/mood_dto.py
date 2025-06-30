@@ -43,7 +43,7 @@ class MoodEntryOut(MoodEntryBase):
     user_id: str
     collected: bool
 
-    model_config = ConfigDict(from_attributes=True, extra='allow')
+    model_config = ConfigDict(from_attributes=True, extra="allow")
 
 
 class MoodEntryStats(BaseModel):
