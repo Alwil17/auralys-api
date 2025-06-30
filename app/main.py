@@ -5,6 +5,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 # Importer la dépendance de la base de données
 import app.api.routes.auth_routes as auth_endpoints
+import app.api.routes.mood_routes as mood_endpoints
 from app.core.config import settings
 
 app = FastAPI(
@@ -15,6 +16,7 @@ app = FastAPI(
 )
 
 app.include_router(auth_endpoints.router)
+app.include_router(mood_endpoints.router)
 
 if settings.PROMETHEUS_ENABLED:
     # Instrumentation pour Prometheus
