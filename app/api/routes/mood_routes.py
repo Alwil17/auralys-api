@@ -29,22 +29,22 @@ async def create_mood_entry(
     current_user: User = Depends(get_current_user),
     mood_service: MoodService = Depends(get_mood_service),
 ):
-    """Créer une nouvelle entrée d'humeur"""
+    """Create a new mood entry for the connected user"""
     return mood_service.create_mood_entry(current_user, mood_data)
 
 
 @router.get("/", response_model=List[MoodEntryOut])
 async def get_user_mood_entries(
-    skip: int = Query(0, ge=0, description="Nombre d'entrées à ignorer"),
+    skip: int = Query(0, ge=0, description="Number of entries to skip"),
     limit: int = Query(
-        100, ge=1, le=100, description="Nombre max d'entrées à retourner"
+        100, ge=1, le=100, description="Maximum number of entries to return"
     ),
-    start_date: Optional[str] = Query(None, description="Date de début (YYYY-MM-DD)"),
-    end_date: Optional[str] = Query(None, description="Date de fin (YYYY-MM-DD)"),
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
     current_user: User = Depends(get_current_user),
     mood_service: MoodService = Depends(get_mood_service),
 ):
-    """Récupérer les entrées d'humeur de l'utilisateur connecté"""
+    """Retrieve mood entries for the connected user"""
     if start_date and end_date:
         return mood_service.get_mood_entries_by_date_range(
             current_user.id, start_date, end_date
@@ -56,12 +56,12 @@ async def get_user_mood_entries(
 @router.get("/stats", response_model=MoodEntryStats)
 async def get_mood_stats(
     days: int = Query(
-        7, ge=1, le=365, description="Nombre de jours pour les statistiques"
+        7, ge=1, le=365, description="Number of days to calculate stats for"
     ),
     current_user: User = Depends(get_current_user),
     mood_service: MoodService = Depends(get_mood_service),
 ):
-    """Obtenir les statistiques d'humeur de l'utilisateur"""
+    """Get mood statistics for the user"""
     return mood_service.get_user_mood_stats(current_user.id, days)
 
 
@@ -71,7 +71,7 @@ async def get_mood_entry(
     current_user: User = Depends(get_current_user),
     mood_service: MoodService = Depends(get_mood_service),
 ):
-    """Récupérer une entrée d'humeur spécifique"""
+    """Retrieve a specific mood entry by ID"""
     return mood_service.get_mood_entry_by_id(mood_id, current_user.id)
 
 
@@ -82,7 +82,7 @@ async def update_mood_entry(
     current_user: User = Depends(get_current_user),
     mood_service: MoodService = Depends(get_mood_service),
 ):
-    """Mettre à jour une entrée d'humeur"""
+    """Update a mood entry"""
     return mood_service.update_mood_entry(mood_id, current_user.id, mood_data)
 
 
@@ -92,9 +92,9 @@ async def delete_mood_entry(
     current_user: User = Depends(get_current_user),
     mood_service: MoodService = Depends(get_mood_service),
 ):
-    """Supprimer une entrée d'humeur"""
+    """Delete a mood entry"""
     success = mood_service.delete_mood_entry(mood_id, current_user.id)
     if not success:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Entrée d'humeur non trouvée"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Mood entry not found"
         )
