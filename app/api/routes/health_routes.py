@@ -30,7 +30,7 @@ async def health_check(db: Session = Depends(get_db)):
         "status": "healthy" if db_status == "healthy" else "degraded",
         "timestamp": datetime.now().isoformat(),
         "database": db_status,
-        "version": "1.0.0",
+        "version": "1.0.2",
     }
 
 
@@ -41,7 +41,7 @@ async def root():
     """
     return {
         "message": "Welcome to Auralys API - Mental Wellness Tracking",
-        "version": "1.0.0",
+        "version": "1.0.2",
         "docs": "/docs or /redoc",
         "health": "/health",
     }
