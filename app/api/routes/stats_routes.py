@@ -11,7 +11,7 @@ from app.schemas.stats_dto import (
     ActivityEffectiveness,
     StatsOverview,
     PeriodComparison,
-    DailyMoodEntry
+    DailyMoodEntry,
 )
 from app.core.security import get_current_user
 from app.db.models.user import User
@@ -27,46 +27,50 @@ def get_stats_service(db: Session = Depends(get_db)) -> StatsService:
 
 @router.get("/overview", response_model=StatsOverview)
 async def get_stats_overview(
-    days: int = Query(30, ge=7, le=365, description="Nombre de jours pour les statistiques"),
+    days: int = Query(
+        30, ge=7, le=365, description="Nombre de jours pour les statistiques"
+    ),
     current_user: User = Depends(get_current_user),
-    stats_service: StatsService = Depends(get_stats_service)
+    stats_service: StatsService = Depends(get_stats_service),
 ):
     """Obtenir une vue d'ensemble complète des statistiques utilisateur"""
     # Statistiques générales
     user_stats = stats_service.get_user_overall_stats(current_user.id, days)
-    
+
     # Tendances hebdomadaires
     weekly_trends = stats_service.get_weekly_mood_trends(current_user.id, weeks=4)
-    
+
     # Distribution des humeurs
     mood_distribution = stats_service.get_mood_distribution(current_user.id, days)
-    
+
     # Efficacité des activités
     top_activities = stats_service.get_activity_effectiveness(current_user.id, days)
-    
+
     # Entrées quotidiennes pour les graphiques
     daily_entries = stats_service.get_daily_mood_entries(current_user.id, days)
-    
+
     # Comparaison avec la période précédente
     period_comparison = None
     if days >= 14:  # Seulement si on a assez de données
         period_comparison = stats_service.get_period_comparison(current_user.id, days)
-    
+
     return StatsOverview(
         user_stats=user_stats,
         weekly_trends=weekly_trends,
         mood_distribution=mood_distribution,
         period_comparison=period_comparison,
         top_activities=top_activities[:5],  # Top 5 activités
-        daily_entries=daily_entries
+        daily_entries=daily_entries,
     )
 
 
 @router.get("/overall", response_model=UserOverallStats)
 async def get_overall_stats(
-    days: int = Query(30, ge=1, le=365, description="Nombre de jours pour les statistiques"),
+    days: int = Query(
+        30, ge=1, le=365, description="Nombre de jours pour les statistiques"
+    ),
     current_user: User = Depends(get_current_user),
-    stats_service: StatsService = Depends(get_stats_service)
+    stats_service: StatsService = Depends(get_stats_service),
 ):
     """Obtenir les statistiques générales de l'utilisateur"""
     return stats_service.get_user_overall_stats(current_user.id, days)
@@ -76,7 +80,7 @@ async def get_overall_stats(
 async def get_weekly_trends(
     weeks: int = Query(4, ge=1, le=12, description="Nombre de semaines"),
     current_user: User = Depends(get_current_user),
-    stats_service: StatsService = Depends(get_stats_service)
+    stats_service: StatsService = Depends(get_stats_service),
 ):
     """Obtenir les tendances d'humeur hebdomadaires"""
     return stats_service.get_weekly_mood_trends(current_user.id, weeks)
@@ -86,7 +90,7 @@ async def get_weekly_trends(
 async def get_mood_distribution(
     days: int = Query(30, ge=7, le=365, description="Nombre de jours"),
     current_user: User = Depends(get_current_user),
-    stats_service: StatsService = Depends(get_stats_service)
+    stats_service: StatsService = Depends(get_stats_service),
 ):
     """Obtenir la distribution des niveaux d'humeur"""
     return stats_service.get_mood_distribution(current_user.id, days)
@@ -96,7 +100,7 @@ async def get_mood_distribution(
 async def get_activity_effectiveness(
     days: int = Query(30, ge=7, le=365, description="Nombre de jours"),
     current_user: User = Depends(get_current_user),
-    stats_service: StatsService = Depends(get_stats_service)
+    stats_service: StatsService = Depends(get_stats_service),
 ):
     """Obtenir l'efficacité des activités recommandées"""
     return stats_service.get_activity_effectiveness(current_user.id, days)
@@ -106,14 +110,14 @@ async def get_activity_effectiveness(
 async def get_period_comparison(
     days: int = Query(30, ge=14, le=365, description="Période à comparer"),
     current_user: User = Depends(get_current_user),
-    stats_service: StatsService = Depends(get_stats_service)
+    stats_service: StatsService = Depends(get_stats_service),
 ):
     """Comparer avec la période précédente"""
     comparison = stats_service.get_period_comparison(current_user.id, days)
     if not comparison:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pas assez de données pour effectuer une comparaison"
+            detail="Pas assez de données pour effectuer une comparaison",
         )
     return comparison
 
@@ -122,7 +126,7 @@ async def get_period_comparison(
 async def get_daily_entries(
     days: int = Query(30, ge=7, le=90, description="Nombre de jours"),
     current_user: User = Depends(get_current_user),
-    stats_service: StatsService = Depends(get_stats_service)
+    stats_service: StatsService = Depends(get_stats_service),
 ):
     """Obtenir les entrées quotidiennes pour les graphiques"""
     return stats_service.get_daily_mood_entries(current_user.id, days)
