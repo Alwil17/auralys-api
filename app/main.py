@@ -11,11 +11,61 @@ import app.api.routes.recommendation_routes as recommendation_endpoints
 import app.api.routes.stats_routes as stats_endpoints
 from app.core.config import settings
 
+# Define tags metadata for Swagger documentation
+tags_metadata = [
+    {
+        "name": "Authentication",
+        "description": "User authentication, registration, and account management including GDPR compliance endpoints.",
+    },
+    {
+        "name": "Mood Tracking",
+        "description": "Daily mood entries, statistics, and mental wellness tracking features.",
+    },
+    {
+        "name": "Chat & NLP",
+        "description": "AI chatbot interactions with sentiment analysis and mood detection.",
+    },
+    {
+        "name": "Recommendations",
+        "description": "Personalized wellness activity recommendations based on mood data.",
+    },
+    {
+        "name": "Statistics",
+        "description": "Analytics, trends, and insights from user wellness data.",
+    },
+    {
+        "name": "Health Check",
+        "description": "System status and health monitoring endpoints.",
+    },
+]
+
 app = FastAPI(
     title="Auralys API",
-    description="API REST pour le suivi du bien-être mental - "
-    "authentification, suivi d'humeur, chatbot et recommandations personnalisées.",
-    version="0.0.1",
+    description="""
+    **Auralys** is a mental wellness tracking API that provides:
+    
+    * **Mood Tracking**: Daily mood entries with sleep, stress, and activity data
+    * **AI Chatbot**: Conversational AI with sentiment analysis and mood detection
+    * **Smart Recommendations**: Personalized wellness activities based on user data
+    * **Analytics**: Comprehensive statistics and trend analysis
+    * **GDPR Compliance**: Full data export and account deletion capabilities
+    
+    ## Authentication
+    Most endpoints require JWT authentication. Get your token from `/auth/token`.
+    
+    ## Data Privacy
+    This API is GDPR compliant and respects user privacy with explicit consent management.
+    """,
+    version="1.0.0",
+    contact={
+        "name": "Auralys Support",
+        "email": "support@auralys.app",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
+    openapi_tags=tags_metadata,
 )
 
 app.include_router(auth_endpoints.router)
