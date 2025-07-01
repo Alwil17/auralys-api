@@ -17,6 +17,7 @@ from .recommendation_dto import (
     RecommendationStats,
     ActivitySuggestion,
     RecommendationEngine,
+    ActivityEffectiveness,
 )
 
 __all__ = [
@@ -40,5 +41,6 @@ __all__ = [
     "RecommendationGenerateRequest",
     "RecommendationStats",
     "ActivitySuggestion",
+    "ActivityEffectiveness",
     "RecommendationEngine",
 ]
