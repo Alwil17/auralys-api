@@ -48,9 +48,9 @@
   _transformers, ex : distilbert-base-uncased._
 - [x] **Process mood from user message**  
   _Inference NLP → champ mood_detected._
-- [ ] **Test: NLP detection pipeline**  
+- [x] **Test: NLP detection pipeline**  
   _Tester analyse de sentiment sur texte._
-- [ ] **Test: store & retrieve chat history**  
+- [x] **Test: store & retrieve chat history**  
   _Liste de messages avec tri par date._
 
 ## 📦 Sprint 4 – Recommandations & Statistiques (S4)
