@@ -55,7 +55,7 @@
 
 ## 📦 Sprint 4 – Recommandations & Statistiques (S4)
 
-- [ ] **Create Recommendation model**  
+- [x] **Create Recommendation model**  
   _Champs : mood_id, activity, was_helpful._
 - [ ] **Generate reco from mood entry**  
   _Endpoint /recommendation/generate._
