@@ -1,5 +1,5 @@
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
-from typing import Dict, Optional, List
+from transformers import pipeline
+from typing import Dict, List
 import logging
 import asyncio
 from functools import lru_cache
