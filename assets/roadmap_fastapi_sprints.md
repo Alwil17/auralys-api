@@ -61,7 +61,7 @@
   _Endpoint /recommendation/generate._
 - [x] **Create stats endpoint**  
   _/stats/weekly : moyenne, évolution._
-- [ ] **Allow feedback on reco**  
+- [x] **Allow feedback on reco**  
   _Champ was_helpful modifiable._
 - [ ] **Test: generate reco for low mood**  
   _Vérifie bonne activité suggérée._
