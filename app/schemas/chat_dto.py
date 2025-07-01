@@ -73,7 +73,7 @@ class ChatMessageOut(ChatMessageBase):
 
 
 class ChatConversationOut(BaseModel):
-    """Représente une conversation complète avec plusieurs messages"""
+    """A chat conversation with messages and metadata"""
 
     messages: list[ChatMessageOut]
     total_messages: int
