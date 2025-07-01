@@ -27,7 +27,7 @@ else:
             database=settings.DB_NAME,
         )
 
-        engine = create_engine(url)
+        engine = create_engine(url, connect_args={"sslmode": "require"})
     else:
         DATABASE_URL = f"{settings.DB_ENGINE}://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
         engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})

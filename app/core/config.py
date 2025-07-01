@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 
 # Load appropriate .env file based on environment
-env_file = ".env.test" if os.getenv("TESTING") == "True" else ".env"
+env_file = ".env.test" if os.getenv("APP_ENV") == "test" else ".env"
 load_dotenv(env_file)
 
 
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     DB_ENGINE: str = "postgresql"
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
-    DB_NAME: str = "ratings"
+    DB_NAME: str = "auralys"
     DB_USER: str = "user"
     DB_PASSWORD: str = "password"
 
