@@ -8,7 +8,7 @@ from app.db.models.mood_entry import MoodEntry
 from app.core.security import hash_password
 
 
-class TestDataSeeder:
+class DataSeeder:
     """Utilitaire pour créer des données de test"""
 
     def __init__(self, db: Session):
