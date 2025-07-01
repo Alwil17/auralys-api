@@ -33,6 +33,9 @@ class User(Base):
     chat_history = relationship(
         "ChatHistory", back_populates="user", cascade=CASCADE_ALL_DELETE_ORPHAN
     )
+    recommendations = relationship(
+        "Recommendation", back_populates="user", cascade=CASCADE_ALL_DELETE_ORPHAN
+    )
 
     def __repr__(self):
         """Return a nicely formatted representation of the User model.
