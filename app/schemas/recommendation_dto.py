@@ -57,43 +57,27 @@ class RecommendationStats(BaseModel):
 
 class ActivitySuggestion(BaseModel):
     """Suggestion d'activité avec métadonnées"""
-    activity: str
-    description: str
-    estimated_time: int  # en minutes
-    mood_impact: str  # "positive", "calming", "energizing"
-    difficulty: Literal["easy", "medium", "hard"]
-    category: str  # "physical", "mental", "social", "creative"
-    not_helpful_count: int
-    pending_feedback_count: int
-    helpfulness_rate: float
-    most_recommended_activity: Optional[str]
-    period_start: str
-    period_end: str
-
-
-class ActivitySuggestion(BaseModel):
-    """Suggestion d'activité avec contexte"""
-
     activity: str = Field(..., description="Description de l'activité")
-    category: str = Field(..., description="Catégorie (physical, mental, social, etc.)")
-    duration: str = Field(..., description="Durée estimée")
-    difficulty: Literal["easy", "medium", "hard"] = Field(
-        ..., description="Niveau de difficulté"
-    )
-    mood_benefit: str = Field(..., description="Bénéfice attendu sur l'humeur")
-    instructions: Optional[str] = Field(None, description="Instructions détaillées")
+    description: str = Field(..., description="Description détaillée")
+    estimated_time: int = Field(..., description="Temps estimé en minutes")
+    mood_impact: str = Field(..., description="Impact sur l'humeur: positive, calming, energizing")
+    difficulty: Literal["easy", "medium", "hard"] = Field(..., description="Niveau de difficulté")
+    category: str = Field(..., description="Catégorie: physical, mental, social, creative")
+
+
+class ActivityEffectiveness(BaseModel):
+    """Efficacité d'une activité recommandée"""
+    activity: str = Field(..., description="Nom de l'activité")
+    times_recommended: int = Field(..., description="Nombre de fois recommandée")
+    times_helpful: int = Field(..., description="Nombre de fois jugée utile")
+    effectiveness_rate: float = Field(..., description="Taux d'efficacité en pourcentage")
 
 
 class RecommendationEngine(BaseModel):
     """Réponse du moteur de recommandations"""
-
     recommendations: list[ActivitySuggestion]
-    reasoning: str = Field(
-        ..., description="Explication de pourquoi ces activités ont été suggérées"
-    )
-    confidence_score: float = Field(
-        ..., ge=0, le=1, description="Score de confiance de la recommandation"
-    )
+    reasoning: str = Field(..., description="Explication de pourquoi ces activités ont été suggérées")
+    confidence_score: float = Field(..., ge=0, le=1, description="Score de confiance de la recommandation")
     follow_up_suggestions: Optional[list[str]] = Field(
         default_factory=list, description="Suggestions de suivi"
     )
