@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from app.repositories.chat_repository import ChatRepository
 from app.schemas.chat_dto import ChatMessageCreate
 from app.db.models.chat_history import ChatHistory
-from app.db.models.user import User
 
 
 class TestChatRepository:
