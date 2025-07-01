@@ -7,7 +7,7 @@ from app.main import app
 from app.db.models.user import User
 from app.db.models.mood_entry import MoodEntry
 from app.schemas.mood_dto import MoodEntryCreate
-from tests.utils.test_data_seeder import TestDataSeeder
+from tests.utils.test_data_seeder import DataSeeder
 
 client = TestClient(app)
 
@@ -16,7 +16,7 @@ class TestGDPRConsent:
     """Tests pour la validation du consentement RGPD"""
 
     def test_mood_creation_rejected_without_consent(
-        self, db: Session, test_user_no_consent: User, test_data_seeder: TestDataSeeder
+        self, db: Session, test_user_no_consent: User, test_data_seeder: DataSeeder
     ):
         """Test: création d'humeur rejetée sans consentement RGPD"""
         from app.core.security import create_access_token
@@ -127,7 +127,7 @@ class TestGDPRConsent:
         assert test_user_no_consent.consent == False
 
     def test_multiple_users_consent_isolation(
-        self, db: Session, test_data_seeder: TestDataSeeder
+        self, db: Session, test_data_seeder: DataSeeder
     ):
         """Test: isolation du consentement entre utilisateurs"""
         from app.core.security import create_access_token
@@ -219,7 +219,7 @@ class TestGDPRComplianceFeatures:
     """Tests pour les fonctionnalités de conformité RGPD"""
 
     def test_user_can_access_own_data_regardless_of_consent(
-        self, db: Session, test_user_no_consent: User, test_data_seeder: TestDataSeeder
+        self, db: Session, test_user_no_consent: User, test_data_seeder: DataSeeder
     ):
         """Test: utilisateur peut accéder à ses données même sans consentement actuel"""
         # Créer manuellement une entrée d'humeur (comme si créée avant retrait du consentement)
