@@ -4,6 +4,7 @@ import uvicorn
 from prometheus_fastapi_instrumentator import Instrumentator
 
 # Importer la dépendance de la base de données
+import app.api.routes.health_routes as health_endpoints
 import app.api.routes.auth_routes as auth_endpoints
 import app.api.routes.mood_routes as mood_endpoints
 import app.api.routes.chat_routes as chat_endpoints
@@ -59,7 +60,7 @@ app = FastAPI(
     version="1.0.0",
     contact={
         "name": "Auralys Support",
-        "email": "support@auralys.app",
+        "email": "willialfred24@gmail.com",
     },
     license_info={
         "name": "MIT License",
@@ -68,6 +69,7 @@ app = FastAPI(
     openapi_tags=tags_metadata,
 )
 
+app.include_router(health_endpoints.router)
 app.include_router(auth_endpoints.router)
 app.include_router(mood_endpoints.router)
 app.include_router(chat_endpoints.router)
