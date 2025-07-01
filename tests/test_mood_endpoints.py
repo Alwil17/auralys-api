@@ -7,7 +7,7 @@ from typing import Dict, Any
 from app.main import app
 from app.db.models.user import User
 from app.db.models.mood_entry import MoodEntry
-from tests.utils.test_data_seeder import TestDataSeeder
+from tests.utils.test_data_seeder import DataSeeder
 
 client = TestClient(app)
 
@@ -169,7 +169,7 @@ class TestMoodListing:
         self,
         test_user_with_consent: User,
         auth_headers_with_consent: Dict[str, str],
-        test_data_seeder: TestDataSeeder,
+        test_data_seeder: DataSeeder,
     ):
         """Test pagination des entrées d'humeur"""
         # Créer 15 entrées de test
@@ -261,7 +261,7 @@ class TestMoodStats:
         self,
         test_user_with_consent: User,
         auth_headers_with_consent: Dict[str, str],
-        test_data_seeder: TestDataSeeder,
+        test_data_seeder: DataSeeder,
     ):
         """Test statistiques pour une période personnalisée"""
         # Créer des données avec tendance

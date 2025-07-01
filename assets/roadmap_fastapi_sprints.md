@@ -40,17 +40,17 @@
 
 ## 📦 Sprint 3 – Chat + NLP (S3)
 
-- [ ] **Create ChatHistory model**  
+- [x] **Create ChatHistory model**  
   _Messages (sender, timestamp, mood_detected…)._
-- [ ] **Add ChatHistory endpoints**  
+- [x] **Add ChatHistory endpoints**  
   _/chat/send, /chat/history._
-- [ ] **Integrate HuggingFace NLP model**  
+- [x] **Integrate HuggingFace NLP model**  
   _transformers, ex : distilbert-base-uncased._
-- [ ] **Process mood from user message**  
+- [x] **Process mood from user message**  
   _Inference NLP → champ mood_detected._
-- [ ] **Test: NLP detection pipeline**  
+- [x] **Test: NLP detection pipeline**  
   _Tester analyse de sentiment sur texte._
-- [ ] **Test: store & retrieve chat history**  
+- [x] **Test: store & retrieve chat history**  
   _Liste de messages avec tri par date._
 
 ## 📦 Sprint 4 – Recommandations & Statistiques (S4)

@@ -29,6 +29,9 @@ class ChatHistory {
     +sender: String // 'user' ou 'bot'
     +mood_detected: String
     +collected: Boolean
+    +translated_message: String // si tu traduis depuis le FR
+    +language: String // détecté ou imposé
+    +model_used: String // ex: "distilroberta-emotion-en"
 }
 
 class Recommendation {

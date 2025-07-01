@@ -3,6 +3,8 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from app.db.models.base import Base
 
+CASCADE_ALL_DELETE_ORPHAN = "all, delete-orphan"
+
 
 class User(Base):
     __tablename__ = "users"
@@ -23,10 +25,13 @@ class User(Base):
 
     # Add the relationship to RefreshToken
     refresh_tokens = relationship(
-        "RefreshToken", back_populates="user", cascade="all, delete-orphan"
+        "RefreshToken", back_populates="user", cascade=CASCADE_ALL_DELETE_ORPHAN
     )
     mood_entries = relationship(
-        "MoodEntry", back_populates="user", cascade="all, delete-orphan"
+        "MoodEntry", back_populates="user", cascade=CASCADE_ALL_DELETE_ORPHAN
+    )
+    chat_history = relationship(
+        "ChatHistory", back_populates="user", cascade=CASCADE_ALL_DELETE_ORPHAN
     )
 
     def __repr__(self):
