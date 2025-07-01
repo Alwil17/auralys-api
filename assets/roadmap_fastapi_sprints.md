@@ -44,7 +44,7 @@
   _Messages (sender, timestamp, mood_detected…)._
 - [x] **Add ChatHistory endpoints**  
   _/chat/send, /chat/history._
-- [ ] **Integrate HuggingFace NLP model**  
+- [x] **Integrate HuggingFace NLP model**  
   _transformers, ex : distilbert-base-uncased._
 - [ ] **Process mood from user message**  
   _Inference NLP → champ mood_detected._
