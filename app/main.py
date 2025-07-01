@@ -7,6 +7,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 import app.api.routes.auth_routes as auth_endpoints
 import app.api.routes.mood_routes as mood_endpoints
 import app.api.routes.chat_routes as chat_endpoints
+import app.api.routes.recommendation_routes as recommendation_endpoints
 import app.api.routes.stats_routes as stats_endpoints
 from app.core.config import settings
 
@@ -20,6 +21,7 @@ app = FastAPI(
 app.include_router(auth_endpoints.router)
 app.include_router(mood_endpoints.router)
 app.include_router(chat_endpoints.router)
+app.include_router(recommendation_endpoints.router)
 app.include_router(stats_endpoints.router)
 
 if settings.PROMETHEUS_ENABLED:
@@ -37,4 +39,4 @@ app.add_middleware(
 
 # Lancer l'application si le fichier est exécuté directement
 if __name__ == "__main__":
-    uvicorn.run("app.api.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
