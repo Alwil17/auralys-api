@@ -183,3 +183,33 @@ class DataSeeder:
         self.db.query(MoodEntry).delete()
         self.db.query(User).filter(User.email.like("%test%")).delete()
         self.db.commit()
+
+    def create_test_mood_entry(
+        self,
+        user_id: str,
+        mood: int = 3,
+        stress_level: int = 3,
+        notes: str = "Test mood entry",
+        activity: str = "Test Activity",
+        sleep_hours: float = 7.0,
+        date: str = None
+    ) -> MoodEntry:
+        """Créer une entrée d'humeur de test"""
+        if date is None:
+            date = datetime.now().date().strftime("%Y-%m-%d")
+        
+        mood_entry = MoodEntry(
+            user_id=str(user_id),  # Ensure string conversion
+            date=date,
+            mood=mood,
+            stress_level=stress_level,
+            notes=notes,
+            activity=activity,
+            sleep_hours=sleep_hours
+        )
+        
+        self.db.add(mood_entry)
+        self.db.commit()
+        self.db.refresh(mood_entry)
+        
+        return mood_entry
