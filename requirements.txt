@@ -14,3 +14,7 @@ python-multipart
 prometheus-fastapi-instrumentator
 sentry-sdk[fastapi]
 pydantic-settings
+transformers
+torch
+accelerate
+huggingface_hub[hf_xet]
