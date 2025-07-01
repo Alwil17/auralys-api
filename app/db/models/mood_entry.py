@@ -29,6 +29,17 @@ class MoodEntry(Base):
     user = relationship("User", back_populates="mood_entries")
     recommendations = relationship("Recommendation", back_populates="mood_entry")
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if isinstance(self.date, str):
+            # Convert string date to datetime object
+            from datetime import datetime
+
+            self.date = datetime.strptime(self.date, "%Y-%m-%d").date()
+    
+    def __repr__(self):
+        return f"<MoodEntry(id={self.id}, user_id={self.user_id}, date={self.date}, mood={self.mood})>"
+    
     # Unique constraint to prevent duplicate entries for the same user on the same date
     __table_args__ = (
         UniqueConstraint("user_id", "date", name="unique_user_date_mood"),
