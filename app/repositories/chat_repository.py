@@ -143,3 +143,17 @@ class ChatRepository:
         )
         self.db.commit()
         return deleted_count
+
+    def delete_all_user_chat_history(self, user_id: str) -> bool:
+        """Delete all chat history for a user (GDPR compliance)"""
+        try:
+            deleted_count = (
+                self.db.query(ChatHistory)
+                .filter(ChatHistory.user_id == user_id)
+                .delete()
+            )
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            raise e
