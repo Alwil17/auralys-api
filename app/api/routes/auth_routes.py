@@ -2,11 +2,22 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from app.schemas.user_dto import UserCreateDTO, UserResponse, UserUpdateDTO
+from app.repositories.chat_repository import ChatRepository
+from app.repositories.mood_repository import MoodRepository
+from app.repositories.recommendation_repository import RecommendationRepository
+from app.schemas.user_dto import (
+    UserCreateDTO,
+    UserResponse,
+    UserUpdateDTO,
+    UserExportData,
+    AccountDeletionRequest,
+)
 from app.schemas.auth_dto import TokenResponse, RefreshTokenRequest
 from app.services.user_service import UserService
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 import secrets
+from fastapi.responses import JSONResponse
+import json
 
 from app.db.base import get_db
 from sqlalchemy.orm import Session
@@ -363,3 +374,177 @@ async def remove_current_user(
     user_service = UserService(db)
     user_service.delete_user(current_user.id)
     return None
+
+
+@router.get("/export-data", response_model=UserExportData)
+async def export_user_data(
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Export all user data for GDPR compliance
+
+    This endpoint provides a complete export of all user data including:
+    - Personal information
+    - Mood entries
+    - Chat history
+    - Recommendations received
+
+    The exported data is provided in JSON format and includes timestamps
+    for audit purposes.
+    """
+    try:
+        user_service = UserService(db)
+        export_data = user_service.export_user_data(str(current_user.id))
+        return export_data
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to export data: {str(e)}")
+
+
+@router.get("/export-data/download")
+async def download_user_data(
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Download user data as a JSON file
+
+    This endpoint provides the same data as /export-data but formatted
+    as a downloadable JSON file with appropriate headers.
+    """
+    try:
+        user_service = UserService(db)
+        export_data = user_service.export_user_data(str(current_user.id))
+
+        # Convert to JSON string
+        json_data = export_data.model_dump_json(indent=2)
+
+        # Set appropriate headers for file download
+        headers = {
+            "Content-Disposition": f"attachment; filename=auralys_data_export_{current_user.id}_{datetime.now().strftime('%Y%m%d')}.json",
+            "Content-Type": "application/json",
+        }
+
+        return JSONResponse(content=json.loads(json_data), headers=headers)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to export data: {str(e)}")
+
+
+@router.delete("/delete-account")
+async def delete_user_account(
+    deletion_request: AccountDeletionRequest,
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Permanently delete user account and all associated data
+
+    This endpoint provides GDPR-compliant account deletion:
+    - Requires explicit confirmation ("DELETE")
+    - Permanently removes all user data
+    - Cannot be undone
+    - Provides deletion timestamp for audit
+
+    WARNING: This action is irreversible!
+    """
+    try:
+        user_service = UserService(db)
+        result = user_service.delete_user_account(
+            str(current_user.id), deletion_request
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete account: {str(e)}"
+        )
+
+
+@router.post("/anonymize-account")
+async def anonymize_user_account(
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Anonymize user account instead of deleting
+
+    This endpoint provides an alternative to account deletion:
+    - Replaces personal identifiers with anonymous values
+    - Preserves anonymized data for research purposes
+    - Revokes data collection consent
+    - Less destructive than full deletion
+    """
+    try:
+        user_service = UserService(db)
+        result = user_service.anonymize_user_data(str(current_user.id))
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to anonymize account: {str(e)}"
+        )
+
+
+@router.get("/data-summary")
+async def get_user_data_summary(
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get a summary of user data for GDPR transparency
+
+    This endpoint provides an overview of what data is stored
+    without exposing the actual content, useful for users
+    to understand their data footprint.
+    """
+    try:
+
+        # Get repositories
+        mood_repo = MoodRepository(db)
+        chat_repo = ChatRepository(db)
+        recommendation_repo = RecommendationRepository(db)
+
+        # Count data entries
+        mood_count = len(
+            mood_repo.get_user_mood_entries(str(current_user.id), 0, 10000)
+        )
+        chat_count = len(
+            chat_repo.get_user_chat_history(str(current_user.id), 0, 10000)
+        )
+        recommendation_count = len(
+            recommendation_repo.get_user_recommendations(str(current_user.id), 0, 10000)
+        )
+
+        return {
+            "user_id": current_user.id,
+            "account_created": current_user.created_at,
+            "consent_status": current_user.consent,
+            "data_summary": {
+                "mood_entries": mood_count,
+                "chat_messages": chat_count,
+                "recommendations": recommendation_count,
+            },
+            "data_types_stored": [
+                "Personal information (name, email)",
+                "Mood tracking data",
+                "Chat conversations with AI",
+                "Personalized recommendations",
+                "Usage analytics (anonymized)",
+            ],
+            "your_rights": [
+                "Right to access your data (/auth/export-data)",
+                "Right to delete your account (/auth/delete-account)",
+                "Right to anonymize your data (/auth/anonymize-account)",
+                "Right to withdraw consent (update profile)",
+            ],
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get data summary: {str(e)}"
+        )

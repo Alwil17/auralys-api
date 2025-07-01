@@ -41,7 +41,7 @@ class TestRecommendationService:
     def test_user_with_consent(self):
         """Utilisateur de test avec consentement"""
         user = Mock(spec=User)
-        user.id = "user-123"
+        user.id = 1
         user.consent = True
         return user
 
@@ -49,7 +49,7 @@ class TestRecommendationService:
     def test_user_no_consent(self):
         """Utilisateur de test sans consentement"""
         user = Mock(spec=User)
-        user.id = "user-456"
+        user.id = 2
         user.consent = False
         return user
 
@@ -58,7 +58,7 @@ class TestRecommendationService:
         """Entrée d'humeur basse pour les tests"""
         mood_entry = Mock(spec=MoodEntry)
         mood_entry.id = "mood-123"
-        mood_entry.user_id = "user-123"
+        mood_entry.user_id = 1
         mood_entry.mood = 1  # Très triste
         mood_entry.stress_level = 4
         mood_entry.notes = "Je me sens très mal aujourd'hui"
@@ -69,7 +69,7 @@ class TestRecommendationService:
         """Entrée d'humeur élevée pour les tests"""
         mood_entry = Mock(spec=MoodEntry)
         mood_entry.id = "mood-456"
-        mood_entry.user_id = "user-123"
+        mood_entry.user_id = 1
         mood_entry.mood = 5  # Très heureux
         mood_entry.stress_level = 1
         mood_entry.notes = "Je me sens fantastique"
@@ -152,7 +152,7 @@ class TestRecommendationService:
         # Entrée d'humeur niveau 2
         mood_entry = Mock(spec=MoodEntry)
         mood_entry.id = "mood-789"
-        mood_entry.user_id = "user-123"
+        mood_entry.user_id = 1
         mood_entry.mood = 2  # Triste
 
         mock_mood_repository.get_mood_entry_by_id.return_value = mood_entry

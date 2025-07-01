@@ -27,12 +27,12 @@ class RecommendationUpdate(BaseModel):
 
 class RecommendationOut(RecommendationBase):
     id: str
-    user_id: str
+    user_id: int
     mood_id: Optional[str]
     timestamp: datetime
     was_helpful: Optional[bool]
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="allow")
 
 
 class RecommendationGenerateRequest(BaseModel):
@@ -158,7 +158,7 @@ class BulkFeedbackUpdate(BaseModel):
 class RecommendationFeedbackStats(BaseModel):
     """Statistiques détaillées des feedbacks"""
 
-    user_id: str
+    user_id: int
     period_start: str
     period_end: str
     total_recommendations: int

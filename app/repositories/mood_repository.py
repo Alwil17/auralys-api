@@ -89,6 +89,18 @@ class MoodRepository:
             return True
         return False
 
+    def delete_all_user_mood_entries(self, user_id: str) -> bool:
+        """Delete all mood entries for a user (GDPR compliance)"""
+        try:
+            deleted_count = (
+                self.db.query(MoodEntry).filter(MoodEntry.user_id == user_id).delete()
+            )
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            raise e
+
     def get_user_mood_stats(self, user_id: str, days: int = 7) -> dict:
         """Calculer les statistiques d'humeur pour un utilisateur"""
         end_date = datetime.now().date()

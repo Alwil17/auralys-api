@@ -35,7 +35,7 @@ class TestChatRepository:
         )
 
         assert result.id is not None
-        assert result.user_id == str(test_user.id)
+        assert result.user_id == test_user.id
         assert result.message == message_data.message
         assert result.sender == "user"
         assert result.mood_detected == "neutral"
@@ -59,7 +59,7 @@ class TestChatRepository:
         )
 
         assert result.id is not None
-        assert result.user_id == str(test_user.id)
+        assert result.user_id == test_user.id
         assert result.message == "Je vais bien, merci !"
         assert result.sender == "bot"
         assert result.mood_detected == "happy"

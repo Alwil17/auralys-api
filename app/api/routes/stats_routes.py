@@ -19,6 +19,8 @@ from app.db.models.user import User
 
 router = APIRouter(prefix="/stats", tags=["statistics"])
 
+NUMBER_OF_DAYS_TEXT = "Number of days"
+
 
 def get_stats_service(db: Session = Depends(get_db)) -> StatsService:
     """Dependency injection pour StatsService"""
@@ -28,12 +30,12 @@ def get_stats_service(db: Session = Depends(get_db)) -> StatsService:
 @router.get("/overview", response_model=StatsOverview)
 async def get_stats_overview(
     days: int = Query(
-        30, ge=7, le=365, description="Nombre de jours pour les statistiques"
+        30, ge=7, le=365, description="Number of days to calculate stats for"
     ),
     current_user: User = Depends(get_current_user),
     stats_service: StatsService = Depends(get_stats_service),
 ):
-    """Obtenir une vue d'ensemble complète des statistiques utilisateur"""
+    """Get an overview of user statistics"""
     # Statistiques générales
     user_stats = stats_service.get_user_overall_stats(current_user.id, days)
 
@@ -67,66 +69,66 @@ async def get_stats_overview(
 @router.get("/overall", response_model=UserOverallStats)
 async def get_overall_stats(
     days: int = Query(
-        30, ge=1, le=365, description="Nombre de jours pour les statistiques"
+        30, ge=1, le=365, description="Number of days to calculate overall stats"
     ),
     current_user: User = Depends(get_current_user),
     stats_service: StatsService = Depends(get_stats_service),
 ):
-    """Obtenir les statistiques générales de l'utilisateur"""
+    """Get overall user statistics for a specific period"""
     return stats_service.get_user_overall_stats(current_user.id, days)
 
 
 @router.get("/weekly", response_model=List[WeeklyMoodTrend])
 async def get_weekly_trends(
-    weeks: int = Query(4, ge=1, le=12, description="Nombre de semaines"),
+    weeks: int = Query(4, ge=1, le=12, description="Number of weeks to analyze"),
     current_user: User = Depends(get_current_user),
     stats_service: StatsService = Depends(get_stats_service),
 ):
-    """Obtenir les tendances d'humeur hebdomadaires"""
+    """Get weekly mood trends for the user"""
     return stats_service.get_weekly_mood_trends(current_user.id, weeks)
 
 
 @router.get("/mood-distribution", response_model=MoodDistribution)
 async def get_mood_distribution(
-    days: int = Query(30, ge=7, le=365, description="Nombre de jours"),
+    days: int = Query(30, ge=7, le=365, description=NUMBER_OF_DAYS_TEXT),
     current_user: User = Depends(get_current_user),
     stats_service: StatsService = Depends(get_stats_service),
 ):
-    """Obtenir la distribution des niveaux d'humeur"""
+    """Get mood distribution for the user over a specified period"""
     return stats_service.get_mood_distribution(current_user.id, days)
 
 
 @router.get("/activities", response_model=List[ActivityEffectiveness])
 async def get_activity_effectiveness(
-    days: int = Query(30, ge=7, le=365, description="Nombre de jours"),
+    days: int = Query(30, ge=7, le=365, description=NUMBER_OF_DAYS_TEXT),
     current_user: User = Depends(get_current_user),
     stats_service: StatsService = Depends(get_stats_service),
 ):
-    """Obtenir l'efficacité des activités recommandées"""
+    """Get effectiveness of activities for the user"""
     return stats_service.get_activity_effectiveness(current_user.id, days)
 
 
 @router.get("/comparison", response_model=PeriodComparison)
 async def get_period_comparison(
-    days: int = Query(30, ge=14, le=365, description="Période à comparer"),
+    days: int = Query(30, ge=14, le=365, description="Period to compare (in days)"),
     current_user: User = Depends(get_current_user),
     stats_service: StatsService = Depends(get_stats_service),
 ):
-    """Comparer avec la période précédente"""
+    """Compare with the previous period"""
     comparison = stats_service.get_period_comparison(current_user.id, days)
     if not comparison:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pas assez de données pour effectuer une comparaison",
+            detail="Unsufficient data for comparison",
         )
     return comparison
 
 
 @router.get("/daily", response_model=List[DailyMoodEntry])
 async def get_daily_entries(
-    days: int = Query(30, ge=7, le=90, description="Nombre de jours"),
+    days: int = Query(30, ge=7, le=90, description=NUMBER_OF_DAYS_TEXT),
     current_user: User = Depends(get_current_user),
     stats_service: StatsService = Depends(get_stats_service),
 ):
-    """Obtenir les entrées quotidiennes pour les graphiques"""
+    """Get daily mood entries for the user"""
     return stats_service.get_daily_mood_entries(current_user.id, days)

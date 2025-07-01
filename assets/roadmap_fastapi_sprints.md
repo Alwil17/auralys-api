@@ -70,12 +70,12 @@
 
 ## 📦 Déploiement & RGPD (en parallèle S4)
 
-- [ ] **Export/delete account endpoints**  
+- [x] **Export/delete account endpoints**  
   _/user/delete, /user/export._
-- [ ] **CI/CD deploy to Render/Fly.io**  
+- [x] **CI/CD deploy to Render/Fly.io**  
   _Pipeline déploiement auto après push._
-- [ ] **Add FastAPI tags + Swagger**  
+- [x] **Add FastAPI tags + Swagger**  
   _Doc dynamique de toutes les routes._
-- [ ] **Test: full workflow**  
+- [x] **Test: full workflow**  
   _Création user → mood → reco → feedback._
 

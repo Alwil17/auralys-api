@@ -37,7 +37,7 @@ class TestRecommendationIntegration:
             ]
         ):
             mood_entry = test_data_seeder.create_test_mood_entry(
-                user_id=str(user.id),  # Convert to string explicitly
+                user_id=user.id,  # Convert to string explicitly
                 mood=mood_level,
                 stress_level=4,
                 notes=notes,
@@ -103,14 +103,14 @@ class TestRecommendationIntegration:
 
             feedback = RecommendationUpdate(was_helpful=helpful)
             updated_reco = recommendation_service.update_recommendation_feedback(
-                reco.id, str(user.id), feedback  # Ensure string conversion
+                reco.id, user.id, feedback  # Ensure string conversion
             )
 
             assert updated_reco.was_helpful == helpful
             feedback_results.append(updated_reco)
 
         # 3. Vérifier les statistiques
-        stats = recommendation_service.get_recommendation_stats(str(user.id), days=30)
+        stats = recommendation_service.get_recommendation_stats(user.id, days=30)
 
         assert stats.total_recommendations >= len(recommendations)
         assert stats.helpful_count >= 1  # Au moins une marquée comme utile
@@ -180,7 +180,7 @@ class TestRecommendationIntegration:
 
             feedback = RecommendationUpdate(was_helpful=helpful)
             recommendation_service.update_recommendation_feedback(
-                reco.id, str(user.id), feedback  # Ensure string conversion
+                reco.id, user.id, feedback  # Ensure string conversion
             )
 
         print(f"Activity feedback count: {activity_feedback_count}")
@@ -188,7 +188,7 @@ class TestRecommendationIntegration:
 
         # Analyser l'efficacité
         activity_effectiveness = recommendation_service.get_activity_effectiveness(
-            str(user.id), days=30  # Ensure string conversion
+            user.id, days=30  # Ensure string conversion
         )
 
         print(f"Activity effectiveness: {activity_effectiveness}")
@@ -241,7 +241,7 @@ class TestRecommendationIntegration:
         for reco in first_recommendations[:2]:
             feedback = RecommendationUpdate(was_helpful=True)
             recommendation_service.update_recommendation_feedback(
-                reco.id, str(user.id), feedback  # Ensure string conversion
+                reco.id, user.id, feedback  # Ensure string conversion
             )
 
         # Phase 2: Nouvelles recommandations après feedback

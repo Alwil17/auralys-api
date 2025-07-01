@@ -33,7 +33,7 @@ class TestMoodSubmission:
 
         # Vérifier la structure de la réponse
         assert "id" in data
-        assert data["user_id"] == str(test_user_with_consent.id)
+        assert data["user_id"] == test_user_with_consent.id
         assert data["date"] == mood_create_data.date
         assert data["mood"] == mood_create_data.mood
         assert data["notes"] == mood_create_data.notes
@@ -46,7 +46,7 @@ class TestMoodSubmission:
         db_mood = db.query(MoodEntry).filter(MoodEntry.id == data["id"]).first()
 
         assert db_mood is not None
-        assert db_mood.user_id == str(test_user_with_consent.id)
+        assert db_mood.user_id == test_user_with_consent.id
 
     def test_create_mood_entry_minimal_data(
         self,
@@ -162,7 +162,7 @@ class TestMoodListing:
             assert "user_id" in str(entry)
             assert "date" in entry
             assert "mood" in entry
-            assert entry["user_id"] == str(test_user_with_consent.id)
+            assert entry["user_id"] == test_user_with_consent.id
 
     def test_get_mood_entries_pagination(
         self,

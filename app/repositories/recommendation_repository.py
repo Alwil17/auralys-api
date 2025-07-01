@@ -231,3 +231,17 @@ class RecommendationRepository:
                 activity_stats[activity]["last_feedback_date"] = reco.timestamp
 
         return activity_stats
+
+    def delete_all_user_recommendations(self, user_id: str) -> bool:
+        """Delete all recommendations for a user (GDPR compliance)"""
+        try:
+            deleted_count = (
+                self.db.query(Recommendation)
+                .filter(Recommendation.user_id == user_id)
+                .delete()
+            )
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            raise e

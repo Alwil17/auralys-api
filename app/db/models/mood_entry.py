@@ -18,7 +18,7 @@ class MoodEntry(Base):
     __tablename__ = "mood_entries"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(String, nullable=False)  # Format YYYY-MM-DD
     mood = Column(Integer, nullable=False)  # 1-5 scale
     notes = Column(String, nullable=True)
