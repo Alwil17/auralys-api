@@ -40,9 +40,9 @@
 
 ## 📦 Sprint 3 – Chat + NLP (S3)
 
-- [ ] **Create ChatHistory model**  
+- [x] **Create ChatHistory model**  
   _Messages (sender, timestamp, mood_detected…)._
-- [ ] **Add ChatHistory endpoints**  
+- [x] **Add ChatHistory endpoints**  
   _/chat/send, /chat/history._
 - [ ] **Integrate HuggingFace NLP model**  
   _transformers, ex : distilbert-base-uncased._
