@@ -25,8 +25,9 @@ class MoodEntry(Base):
     stress_level = Column(Integer, nullable=True)  # 1 à 5
     collected = Column(Boolean, default=True)  # cloud sync flag
 
-    # Relationship with User
+    # Relations
     user = relationship("User", back_populates="mood_entries")
+    recommendations = relationship("Recommendation", back_populates="mood_entry")
 
     # Unique constraint to prevent duplicate entries for the same user on the same date
     __table_args__ = (
