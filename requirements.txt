@@ -18,3 +18,4 @@ transformers
 torch
 accelerate
 huggingface_hub[hf_xet]
+pytest-asyncio
