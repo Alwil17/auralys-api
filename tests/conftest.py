@@ -92,16 +92,20 @@ def user_auth(client):
 def test_data_seeder(db):
     """Fixture pour le seeder de données de test"""
     from tests.utils.test_data_seeder import DataSeeder
+
     return DataSeeder(db)
 
 
 @pytest.fixture
 def auth_headers():
     """Fixture pour générer des headers d'authentification"""
+
     def _auth_headers(user):
         from app.core.security import create_access_token
+
         token = create_access_token(data={"sub": user.email})
         return {"Authorization": f"Bearer {token}"}
+
     return _auth_headers
 
 
