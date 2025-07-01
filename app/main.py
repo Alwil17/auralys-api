@@ -57,7 +57,7 @@ app = FastAPI(
     ## Data Privacy
     This API is GDPR compliant and respects user privacy with explicit consent management.
     """,
-    version="1.0.0",
+    version="1.0.1",
     contact={
         "name": "Auralys Support",
         "email": "willialfred24@gmail.com",
