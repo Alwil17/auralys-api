@@ -15,6 +15,9 @@ class ChatHistory(Base):
     sender = Column(String, nullable=False)  # 'user' ou 'bot'
     mood_detected = Column(String, nullable=True)  # Résultat de l'analyse NLP
     collected = Column(Boolean, default=True)  # cloud sync flag
+    translated_message = Column(String, nullable=True)  # si tu traduis depuis le FR
+    language = Column(String, nullable=True)  # détecté ou imposé
+    model_used = Column(String, nullable=True)  # ex: "distilroberta-emotion-en"
 
     # Relation avec User
     user = relationship("User", back_populates="chat_history")
