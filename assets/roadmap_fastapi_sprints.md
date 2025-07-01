@@ -46,7 +46,7 @@
   _/chat/send, /chat/history._
 - [x] **Integrate HuggingFace NLP model**  
   _transformers, ex : distilbert-base-uncased._
-- [ ] **Process mood from user message**  
+- [x] **Process mood from user message**  
   _Inference NLP → champ mood_detected._
 - [ ] **Test: NLP detection pipeline**  
   _Tester analyse de sentiment sur texte._
