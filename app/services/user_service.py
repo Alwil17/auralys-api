@@ -5,6 +5,7 @@ from app.db.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.user_dto import (
     UserCreateDTO,
+    UserResponse,
     UserUpdateDTO,
     UserExportData,
     AccountDeletionRequest,
@@ -12,9 +13,9 @@ from app.schemas.user_dto import (
 from app.repositories.mood_repository import MoodRepository
 from app.repositories.chat_repository import ChatRepository
 from app.repositories.recommendation_repository import RecommendationRepository
-import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
+USER_NOT_FOUND = "User not found"
 
 class UserService:
     def __init__(self, db_session: Session):
@@ -54,7 +55,7 @@ class UserService:
         """Export all user data for GDPR compliance"""
         user = self.repository.get_by_id(user_id)
         if not user:
-            raise ValueError("User not found")
+            raise ValueError()
 
         # Get all user data from different repositories
         mood_repo = MoodRepository(self.repository.db)
@@ -133,7 +134,7 @@ class UserService:
 
         user = self.repository.get_by_id(user_id)
         if not user:
-            raise ValueError("User not found")
+            raise ValueError(USER_NOT_FOUND)
 
         # Get repositories for cascading deletion
         mood_repo = MoodRepository(self.repository.db)
@@ -183,7 +184,7 @@ class UserService:
         """Alternative to deletion - anonymize user data instead of deleting"""
         user = self.repository.get_by_id(user_id)
         if not user:
-            raise ValueError("User not found")
+            raise ValueError(USER_NOT_FOUND)
 
         # Anonymize user identifiable information
         anonymized_data = UserUpdateDTO(
