@@ -136,3 +136,77 @@ class RecommendationRepository:
         ).delete()
         self.db.commit()
         return deleted_count
+
+    def get_pending_feedback_recommendations(
+        self, 
+        user_id: str, 
+        limit: int = 10
+    ) -> List[Recommendation]:
+        """Récupérer les recommandations en attente de feedback"""
+        return self.db.query(Recommendation).filter(
+            and_(
+                Recommendation.user_id == user_id,
+                Recommendation.was_helpful.is_(None)
+            )
+        ).order_by(desc(Recommendation.timestamp)).limit(limit).all()
+
+    def get_recommendations_with_feedback(
+        self, 
+        user_id: str, 
+        helpful: Optional[bool] = None,
+        days: int = 30
+    ) -> List[Recommendation]:
+        """Récupérer les recommandations avec feedback spécifique"""
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
+        
+        query = self.db.query(Recommendation).filter(
+            and_(
+                Recommendation.user_id == user_id,
+                Recommendation.timestamp >= start_date,
+                Recommendation.was_helpful.is_not(None)
+            )
+        )
+        
+        if helpful is not None:
+            query = query.filter(Recommendation.was_helpful == helpful)
+        
+        return query.order_by(desc(Recommendation.timestamp)).all()
+
+    def get_activity_feedback_stats(self, user_id: str, days: int = 30) -> Dict:
+        """Obtenir les statistiques de feedback par activité"""
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
+        
+        recommendations = self.db.query(Recommendation).filter(
+            and_(
+                Recommendation.user_id == user_id,
+                Recommendation.timestamp >= start_date,
+                Recommendation.was_helpful.is_not(None)
+            )
+        ).all()
+        
+        # Analyser par activité
+        activity_stats = {}
+        for reco in recommendations:
+            activity = reco.suggested_activity
+            if activity not in activity_stats:
+                activity_stats[activity] = {
+                    "total": 0,
+                    "helpful": 0,
+                    "not_helpful": 0,
+                    "last_feedback_date": None
+                }
+            
+            activity_stats[activity]["total"] += 1
+            if reco.was_helpful:
+                activity_stats[activity]["helpful"] += 1
+            else:
+                activity_stats[activity]["not_helpful"] += 1
+            
+            # Mettre à jour la date du dernier feedback
+            if (activity_stats[activity]["last_feedback_date"] is None or 
+                reco.timestamp > activity_stats[activity]["last_feedback_date"]):
+                activity_stats[activity]["last_feedback_date"] = reco.timestamp
+        
+        return activity_stats
