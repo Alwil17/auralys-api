@@ -59,7 +59,7 @@
   _Champs : mood_id, activity, was_helpful._
 - [x] **Generate reco from mood entry**  
   _Endpoint /recommendation/generate._
-- [ ] **Create stats endpoint**  
+- [x] **Create stats endpoint**  
   _/stats/weekly : moyenne, évolution._
 - [ ] **Allow feedback on reco**  
   _Champ was_helpful modifiable._
