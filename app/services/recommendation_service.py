@@ -276,12 +276,23 @@ class RecommendationService:
         
         # Récupérer le niveau d'humeur
         if request.mood_id and self.mood_repository:
-            mood_entry = self.mood_repository.get_mood_entry_by_id(request.mood_id)
-            if not mood_entry or mood_entry.user_id != user.id:
+            # Convert to string to ensure consistent comparison
+            mood_id_str = str(request.mood_id)
+            mood_entry = self.mood_repository.get_mood_entry_by_id(mood_id_str)
+            
+            if not mood_entry:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Entrée d'humeur non trouvée"
+                    detail=f"Entrée d'humeur non trouvée pour ID: {mood_id_str}"
                 )
+            
+            # Verify ownership
+            if str(mood_entry.user_id) != str(user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Accès non autorisé à cette entrée d'humeur"
+                )
+            
             mood_level = mood_entry.mood
         elif request.mood_level:
             mood_level = request.mood_level
@@ -293,7 +304,7 @@ class RecommendationService:
 
         # Vérifier les recommandations récentes pour éviter les doublons
         recent_recommendations = self.recommendation_repository.get_recent_recommendations(
-            user.id, hours=6
+            str(user.id), hours=6
         )
         recent_activities = [r.suggested_activity for r in recent_recommendations]
 
@@ -323,7 +334,7 @@ class RecommendationService:
             )
             
             recommendation = self.recommendation_repository.create_recommendation(
-                user.id, recommendation_data
+                str(user.id), recommendation_data
             )
             recommendations.append(RecommendationOut.model_validate(recommendation))
 
