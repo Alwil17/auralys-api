@@ -1,7 +1,5 @@
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime
-from sqlalchemy.orm import Session
+from unittest.mock import Mock, AsyncMock
 
 from app.services.chat_service import ChatService
 from app.repositories.chat_repository import ChatRepository

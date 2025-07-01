@@ -55,17 +55,17 @@
 
 ## 📦 Sprint 4 – Recommandations & Statistiques (S4)
 
-- [ ] **Create Recommendation model**  
+- [x] **Create Recommendation model**  
   _Champs : mood_id, activity, was_helpful._
-- [ ] **Generate reco from mood entry**  
+- [x] **Generate reco from mood entry**  
   _Endpoint /recommendation/generate._
-- [ ] **Create stats endpoint**  
+- [x] **Create stats endpoint**  
   _/stats/weekly : moyenne, évolution._
-- [ ] **Allow feedback on reco**  
+- [x] **Allow feedback on reco**  
   _Champ was_helpful modifiable._
-- [ ] **Test: generate reco for low mood**  
+- [x] **Test: generate reco for low mood**  
   _Vérifie bonne activité suggérée._
-- [ ] **Test: weekly stats aggregation**  
+- [x] **Test: weekly stats aggregation**  
   _Données sur les 7 derniers jours._
 
 ## 📦 Déploiement & RGPD (en parallèle S4)

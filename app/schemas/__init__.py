@@ -8,6 +8,17 @@ from .chat_dto import (
     ChatStats,
     ChatMoodAnalysis,
 )
+from .recommendation_dto import (
+    RecommendationCreate,
+    RecommendationUpdate,
+    RecommendationOut,
+    RecommendationFeedbackStats,
+    RecommendationGenerateRequest,
+    RecommendationStats,
+    ActivitySuggestion,
+    RecommendationEngine,
+    ActivityEffectiveness,
+)
 
 __all__ = [
     "UserCreateDTO",
@@ -23,4 +34,13 @@ __all__ = [
     "ChatBotResponse",
     "ChatStats",
     "ChatMoodAnalysis",
+    "RecommendationCreate",
+    "RecommendationUpdate",
+    "RecommendationOut",
+    "RecommendationFeedbackStats",
+    "RecommendationGenerateRequest",
+    "RecommendationStats",
+    "ActivitySuggestion",
+    "ActivityEffectiveness",
+    "RecommendationEngine",
 ]

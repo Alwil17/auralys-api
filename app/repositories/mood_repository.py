@@ -21,7 +21,11 @@ class MoodRepository:
 
     def get_mood_entry_by_id(self, mood_id: str) -> Optional[MoodEntry]:
         """Récupérer une entrée d'humeur par ID"""
-        return self.db.query(MoodEntry).filter(MoodEntry.id == mood_id).first()
+        return (
+            self.db.query(MoodEntry)
+            .filter(MoodEntry.id == str(mood_id))  # Ensure string comparison
+            .first()
+        )
 
     def get_mood_entry_by_user_and_date(
         self, user_id: str, date: str
