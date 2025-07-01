@@ -70,7 +70,7 @@
 
 ## 📦 Déploiement & RGPD (en parallèle S4)
 
-- [ ] **Export/delete account endpoints**  
+- [x] **Export/delete account endpoints**  
   _/user/delete, /user/export._
 - [ ] **CI/CD deploy to Render/Fly.io**  
   _Pipeline déploiement auto après push._
