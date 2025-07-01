@@ -6,7 +6,6 @@ from datetime import datetime
 from app.main import app
 from app.db.models.user import User
 from app.db.models.mood_entry import MoodEntry
-from app.schemas.mood_dto import MoodEntryCreate
 from tests.utils.test_data_seeder import DataSeeder
 
 client = TestClient(app)
