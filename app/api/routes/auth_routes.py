@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
+from app.repositories.chat_repository import ChatRepository
+from app.repositories.mood_repository import MoodRepository
+from app.repositories.recommendation_repository import RecommendationRepository
 from app.schemas.user_dto import (
     UserCreateDTO,
     UserResponse,
@@ -501,7 +504,6 @@ async def get_user_data_summary(
     to understand their data footprint.
     """
     try:
-        user_service = UserService(db)
 
         # Get repositories
         mood_repo = MoodRepository(db)
