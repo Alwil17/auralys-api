@@ -16,8 +16,12 @@ class Recommendation(Base):
     suggested_activity = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
     was_helpful = Column(Boolean, nullable=True)  # User feedback
-    recommendation_type = Column(String, default="mood_based")  # "mood_based", "chat_based", "manual"
-    confidence_score = Column(String, nullable=True)  # How confident we are in this recommendation
+    recommendation_type = Column(
+        String, default="mood_based"
+    )  # "mood_based", "chat_based", "manual"
+    confidence_score = Column(
+        String, nullable=True
+    )  # How confident we are in this recommendation
 
     # Relations
     user = relationship("User", back_populates="recommendations")
