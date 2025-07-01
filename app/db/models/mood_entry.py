@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 
 class MoodEntry(Base):
     __tablename__ = "mood_entries"
-    
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     date = Column(String, nullable=False)  # Format YYYY-MM-DD
@@ -27,8 +27,12 @@ class MoodEntry(Base):
     stress_level = Column(Integer, nullable=True)  # 1-5 scale
     collected = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
-    
+    updated_at = Column(
+        DateTime,
+        default=datetime.now(timezone.utc),
+        onupdate=datetime.now(timezone.utc),
+    )
+
     # Relations
     user = relationship("User", back_populates="mood_entries")
     recommendations = relationship("Recommendation", back_populates="mood_entry")
@@ -40,10 +44,10 @@ class MoodEntry(Base):
             from datetime import datetime
 
             self.date = datetime.strptime(self.date, "%Y-%m-%d").date()
-    
+
     def __repr__(self):
         return f"<MoodEntry(id={self.id}, user_id={self.user_id}, date={self.date}, mood={self.mood})>"
-    
+
     # Unique constraint to prevent duplicate entries for the same user on the same date
     __table_args__ = (
         UniqueConstraint("user_id", "date", name="unique_user_date_mood"),
