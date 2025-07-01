@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Dict
 
@@ -16,7 +16,7 @@ from app.schemas.recommendation_dto import FeedbackSummary, BulkFeedbackUpdate
 from app.core.security import get_current_user
 from app.db.models.user import User
 
-router = APIRouter(prefix="/recommendations", tags=["recommendations"])
+router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
 
 
 def get_recommendation_service(db: Session = Depends(get_db)) -> RecommendationService:
