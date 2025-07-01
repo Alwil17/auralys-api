@@ -1,17 +1,17 @@
-from typing import List, Optional, Dict
+from typing import List, Optional
 from fastapi import HTTPException, status
 from datetime import datetime, timedelta
 
 from app.repositories.chat_repository import ChatRepository
+from app.services.nlp_service import get_nlp_service
 from app.schemas.chat_dto import (
     ChatMessageCreate,
     ChatMessageOut,
     ChatBotResponse,
     ChatConversationOut,
-    ChatStats,
+    ChatStats
 )
 from app.db.models.user import User
-from app.services.nlp_service import get_nlp_service
 
 
 class ChatService:
@@ -19,111 +19,166 @@ class ChatService:
         self.chat_repository = chat_repository
         self.nlp_service = get_nlp_service()
 
-    def send_message(
-        self, user: User, message_data: ChatMessageCreate
-    ) -> ChatBotResponse:
-        """Traiter un message utilisateur et générer une réponse bot"""
-
+    async def send_message(self, user: User, message_data: ChatMessageCreate) -> ChatBotResponse:
+        """
+        Traiter un message utilisateur et générer une réponse du bot
+        """
         # Vérifier le consentement RGPD
         if not user.consent:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Consentement requis pour sauvegarder l'historique de chat",
+                detail="Consentement requis pour utiliser le chatbot"
             )
 
-        # Analyse NLP avec Hugging Face
-        emotion_analysis = self.nlp_service.analyze_emotion(message_data.message)
-        mood_detected = emotion_analysis["emotion"]
+        try:
+            # Analyser l'humeur du message utilisateur
+            nlp_analysis = await self.nlp_service.analyze_mood_from_text(
+                message_data.message, 
+                message_data.language or "en"
+            )
 
-        # Sauvegarder le message utilisateur avec les données NLP
-        user_message = self.chat_repository.create_chat_message(
-            user_id=str(user.id),
-            message_data=message_data,
-            sender="user",
-            mood_detected=mood_detected,
-            nlp_data=emotion_analysis,  # Données supplémentaires
-        )
+            # Sauvegarder le message utilisateur avec l'analyse NLP
+            user_message = self.chat_repository.create_chat_message(
+                user_id=user.id,
+                message_data=message_data,
+                sender="user",
+                mood_detected=nlp_analysis.get("mood_detected"),
+                model_used=nlp_analysis.get("model_used")
+            )
 
-        # Générer une réponse bot basée sur l'émotion détectée
-        bot_response_text = self._generate_bot_response(
-            message_data.message, emotion_analysis
-        )
-        suggestions = self._generate_suggestions(mood_detected, emotion_analysis)
+            # Générer une réponse du bot basée sur l'humeur détectée
+            bot_response_text = self._generate_bot_response(
+                nlp_analysis.get("mood_detected", "neutral"),
+                nlp_analysis.get("emotions", {}),
+                message_data.message
+            )
 
-        # Sauvegarder la réponse bot
-        bot_message = self.chat_repository.create_bot_response(
-            user_id=str(user.id),
-            bot_message=bot_response_text,
-            mood_detected=mood_detected,
-        )
+            # Sauvegarder la réponse du bot
+            bot_message = self.chat_repository.create_bot_response(
+                user_id=user.id,
+                bot_message=bot_response_text,
+                mood_detected=nlp_analysis.get("mood_detected"),
+                language=message_data.language,
+                model_used=nlp_analysis.get("model_used")
+            )
 
-        return ChatBotResponse(
-            bot_message=bot_response_text,
-            mood_detected=mood_detected,
-            suggestions=suggestions,
-            emotion_analysis=emotion_analysis,  # Inclure l'analyse détaillée
-        )
+            # Générer des suggestions d'activités
+            suggestions = self.nlp_service.get_mood_suggestions(
+                nlp_analysis.get("mood_detected", "neutral"),
+                nlp_analysis.get("emotions", {})
+            )
+
+            return ChatBotResponse(
+                bot_message=bot_response_text,
+                mood_detected=nlp_analysis.get("mood_detected"),
+                suggestions=suggestions[:3],  # Limiter à 3 suggestions
+                emotion_analysis=nlp_analysis.get("emotions"),
+                language_detected=nlp_analysis.get("language"),
+                model_used=nlp_analysis.get("model_used")
+            )
+
+        except Exception as e:
+            # En cas d'erreur, sauvegarder quand même le message utilisateur
+            self.chat_repository.create_chat_message(
+                user_id=user.id,
+                message_data=message_data,
+                sender="user"
+            )
+            
+            # Réponse de fallback
+            fallback_response = "Je suis désolé, j'ai des difficultés à analyser votre message en ce moment. Comment vous sentez-vous ?"
+            
+            self.chat_repository.create_bot_response(
+                user_id=user.id,
+                bot_message=fallback_response,
+                language=message_data.language
+            )
+            
+            return ChatBotResponse(
+                bot_message=fallback_response,
+                mood_detected="neutral",
+                suggestions=["Prendre une pause", "Faire une promenade", "Boire un verre d'eau"]
+            )
+
+    def _generate_bot_response(self, mood: str, emotions: dict, original_message: str) -> str:
+        """
+        Générer une réponse personnalisée du bot basée sur l'humeur détectée
+        """
+        responses = {
+            "happy": [
+                "C'est merveilleux de vous voir si positif ! Qu'est-ce qui vous rend si heureux aujourd'hui ?",
+                "Votre joie est contagieuse ! Continuez à cultiver ces moments de bonheur.",
+                "J'adore votre énergie positive ! Que diriez-vous de partager cette joie avec quelqu'un ?"
+            ],
+            "sad": [
+                "Je comprends que vous traversez un moment difficile. Voulez-vous me parler de ce qui vous préoccupe ?",
+                "Il est normal de se sentir triste parfois. Prenez le temps qu'il vous faut pour vous sentir mieux.",
+                "Vos sentiments sont valides. Que puis-je faire pour vous aider à vous sentir un peu mieux ?"
+            ],
+            "anxious": [
+                "Je sens que vous êtes un peu stressé. Avez-vous essayé quelques exercices de respiration ?",
+                "L'anxiété peut être difficile à gérer. Parlons de ce qui vous préoccupe.",
+                "Prenons un moment pour nous concentrer sur le présent. Respirez profondément avec moi."
+            ],
+            "angry": [
+                "Je comprends votre frustration. Parfois, exprimer ces sentiments peut aider.",
+                "La colère est une émotion normale. Qu'est-ce qui vous a mis en colère ?",
+                "Prenons un moment pour canaliser cette énergie de manière constructive."
+            ],
+            "neutral": [
+                "Comment vous sentez-vous aujourd'hui ? Je suis là pour vous écouter.",
+                "Merci de partager avec moi. Voulez-vous me parler de votre journée ?",
+                "Je suis là pour vous accompagner. Qu'aimeriez-vous explorer ensemble ?"
+            ]
+        }
+        
+        mood_responses = responses.get(mood, responses["neutral"])
+        
+        # Sélectionner une réponse basée sur la longueur du message original
+        if len(original_message) > 100:
+            # Message long, réponse plus empathique
+            return mood_responses[0]
+        elif any(word in original_message.lower() for word in ["merci", "thanks", "thank you"]):
+            # Message de remerciement
+            return "De rien ! Je suis là pour vous aider. Y a-t-il autre chose dont vous aimeriez parler ?"
+        else:
+            # Réponse standard
+            import random
+            return random.choice(mood_responses)
 
     def get_chat_history(
-        self, user_id: str, skip: int = 0, limit: int = 50
+        self, 
+        user_id: str, 
+        skip: int = 0, 
+        limit: int = 50
     ) -> ChatConversationOut:
-        """Récupérer l'historique de conversation d'un utilisateur"""
+        """Récupérer l'historique des conversations"""
         messages = self.chat_repository.get_user_chat_history(user_id, skip, limit)
-
-        # Convertir en modèles de sortie
         message_outs = [ChatMessageOut.model_validate(msg) for msg in messages]
-
-        # Calculer les dates de début et fin
+        
         start_date = messages[-1].timestamp if messages else None
         end_date = messages[0].timestamp if messages else None
-
+        
         return ChatConversationOut(
             messages=message_outs,
-            total_messages=len(message_outs),
+            total_messages=len(messages),
             start_date=start_date,
-            end_date=end_date,
+            end_date=end_date
         )
 
-    def get_chat_history_by_date_range(
-        self, user_id: str, start_date: str, end_date: str
-    ) -> ChatConversationOut:
-        """Récupérer l'historique pour une période donnée"""
-        try:
-            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
-            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
-            end_dt = end_dt.replace(hour=23, minute=59, second=59)  # Fin de journée
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Format de date invalide. Utiliser YYYY-MM-DD",
-            )
-
-        messages = self.chat_repository.get_user_chat_history_by_date_range(
-            user_id, start_dt, end_dt
-        )
-
-        message_outs = [ChatMessageOut.model_validate(msg) for msg in messages]
-
-        return ChatConversationOut(
-            messages=message_outs,
-            total_messages=len(message_outs),
-            start_date=start_dt,
-            end_date=end_dt,
-        )
-
-    def get_chat_stats(self, user_id: str, days: int = 7) -> ChatStats:
+    def get_chat_stats(self, user_id: str, days: int = 30) -> ChatStats:
         """Obtenir les statistiques de chat"""
         if days <= 0 or days > 365:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Le nombre de jours doit être entre 1 et 365",
+                detail="Le nombre de jours doit être entre 1 et 365"
             )
 
-        stats = self.chat_repository.get_user_chat_stats(user_id, days)
-
+        stats = self.chat_repository.get_chat_stats(user_id, days)
+        
         end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=days - 1)
-
+        start_date = end_date - timedelta(days=days-1)
+        
         return ChatStats(
             total_messages=stats["total_messages"],
             messages_user=stats["messages_user"],
@@ -131,102 +186,5 @@ class ChatService:
             most_detected_mood=stats["most_detected_mood"],
             average_messages_per_day=stats["average_messages_per_day"],
             period_start=start_date.strftime("%Y-%m-%d"),
-            period_end=end_date.strftime("%Y-%m-%d"),
+            period_end=end_date.strftime("%Y-%m-%d")
         )
-
-    def delete_user_chat_history(self, user_id: str) -> bool:
-        """Supprimer l'historique de chat d'un utilisateur (RGPD)"""
-        return self.chat_repository.delete_user_chat_history(user_id)
-
-    def _generate_bot_response(
-        self, user_message: str, emotion_analysis: Dict[str, any]
-    ) -> str:
-        """Générer une réponse basée sur l'analyse d'émotion détaillée"""
-        emotion = emotion_analysis.get("original_emotion", "neutral")
-        confidence = emotion_analysis.get("confidence", 0.5)
-
-        # Réponses spécifiques par émotion
-        if emotion == "joy":
-            responses = [
-                f"Je sens beaucoup de joie dans votre message ! (confiance: {confidence:.1%}) C'est merveilleux !",
-                "Votre bonheur est contagieux ! Qu'est-ce qui vous rend si heureux aujourd'hui ?",
-                "J'adore cette énergie positive ! Continuez ainsi !",
-            ]
-        elif emotion == "sadness":
-            responses = [
-                f"Je perçois de la tristesse dans vos mots (confiance: {confidence:.1%}). Je suis là pour vous écouter.",
-                "Il est normal de se sentir triste parfois. Voulez-vous en parler ?",
-                "Je comprends que ce soit difficile. Comment puis-je vous aider ?",
-            ]
-        elif emotion == "anger":
-            responses = [
-                f"Je sens de la colère (confiance: {confidence:.1%}). Prenons un moment pour respirer ensemble.",
-                "La colère peut être difficile à gérer. Que s'est-il passé ?",
-                "Je comprends votre frustration. Parlons-en calmement.",
-            ]
-        elif emotion == "fear":
-            responses = [
-                f"Je détecte de l'anxiété ou de la peur (confiance: {confidence:.1%}). Vous n'êtes pas seul(e).",
-                "L'inquiétude peut être écrasante. Que puis-je faire pour vous rassurer ?",
-                "Respirons ensemble. Voulez-vous partager ce qui vous préoccupe ?",
-            ]
-        elif emotion == "surprise":
-            responses = [
-                f"Vous semblez surpris(e) ! (confiance: {confidence:.1%}) Que s'est-il passé ?",
-                "Quelque chose d'inattendu ? Racontez-moi !",
-                "La surprise peut être positive ou déstabilisante. Comment vous sentez-vous ?",
-            ]
-        else:  # neutral, disgust, etc.
-            responses = [
-                f"Merci de partager cela avec moi (émotion détectée: {emotion}, confiance: {confidence:.1%}).",
-                "Je vous écoute. Comment vous sentez-vous maintenant ?",
-                "Comment puis-je vous aider aujourd'hui ?",
-            ]
-
-        import random
-
-        return random.choice(responses)
-
-    def _generate_suggestions(
-        self, mood: Optional[str], emotion_analysis: Dict[str, any]
-    ) -> List[str]:
-        """Générer des suggestions basées sur l'analyse d'émotion détaillée"""
-        original_emotion = emotion_analysis.get("original_emotion", "neutral")
-        confidence = emotion_analysis.get("confidence", 0.5)
-
-        # Suggestions spécifiques par émotion
-        if original_emotion == "joy":
-            return [
-                "Partager cette joie avec vos proches",
-                "Noter ce moment positif dans un journal",
-                "Planifier une activité que vous aimez encore plus",
-                "Prendre une photo ou créer un souvenir de ce moment",
-            ]
-        elif original_emotion == "sadness":
-            return [
-                "Prendre quelques minutes pour pleurer si vous en avez besoin",
-                "Contacter un ami proche ou un membre de la famille",
-                "Écouter de la musique apaisante",
-                "Pratiquer l'auto-compassion et la douceur envers soi",
-            ]
-        elif original_emotion == "anger":
-            return [
-                "Faire de l'exercice physique pour évacuer la tension",
-                "Pratiquer la respiration profonde (4-7-8)",
-                "Écrire vos pensées dans un journal",
-                "Prendre une douche froide ou chaude selon vos préférences",
-            ]
-        elif original_emotion == "fear":
-            return [
-                "Pratiquer des exercices de respiration",
-                "Utiliser la technique de mise à la terre (5-4-3-2-1)",
-                "Parler à quelqu'un en qui vous avez confiance",
-                "Faire une activité rassurante et familière",
-            ]
-        else:
-            return [
-                "Prendre un moment pour réfléchir à vos sentiments",
-                "Faire une courte méditation ou relaxation",
-                "Sortir prendre l'air frais",
-                "Boire un thé ou une boisson réconfortante",
-            ]
