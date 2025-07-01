@@ -12,10 +12,12 @@ class Recommendation(Base):
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     mood_id = Column(
         String, ForeignKey("mood_entries.id"), nullable=True
-    )  # Optional link to mood entry
+    )  # Can be None for chat-based recommendations
     suggested_activity = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    was_helpful = Column(Boolean, nullable=True)  # Feedback simple: True/False/None
+    was_helpful = Column(Boolean, nullable=True)  # User feedback
+    recommendation_type = Column(String, default="mood_based")  # "mood_based", "chat_based", "manual"
+    confidence_score = Column(String, nullable=True)  # How confident we are in this recommendation
 
     # Relations
     user = relationship("User", back_populates="recommendations")
