@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional, Literal
+from typing import Optional, Literal, List, Dict
 from datetime import datetime
 
 
@@ -97,3 +97,48 @@ class RecommendationEngine(BaseModel):
     follow_up_suggestions: Optional[list[str]] = Field(
         default_factory=list, description="Suggestions de suivi"
     )
+
+
+class FeedbackSummary(BaseModel):
+    """Résumé des feedbacks utilisateur"""
+    total_feedback: int = Field(..., description="Nombre total de feedbacks")
+    helpful_rate: float = Field(..., description="Pourcentage de recommandations utiles")
+    most_helpful_activities: List[Dict] = Field(default_factory=list, description="Activités les plus utiles")
+    least_helpful_activities: List[Dict] = Field(default_factory=list, description="Activités les moins utiles")
+    feedback_trends: List[Dict] = Field(default_factory=list, description="Tendances de feedback par semaine")
+
+
+class RecommendationWithContext(BaseModel):
+    """Recommandation avec contexte d'humeur"""
+    recommendation: RecommendationOut
+    mood_context: Optional[Dict] = Field(None, description="Contexte de l'entrée d'humeur associée")
+    feedback_deadline: Optional[datetime] = Field(None, description="Date limite suggérée pour le feedback")
+
+
+class BulkFeedbackUpdate(BaseModel):
+    """Mise à jour de feedback en lot"""
+    feedbacks: List[Dict] = Field(..., description="Liste des feedbacks à mettre à jour")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "feedbacks": [
+                    {"recommendation_id": "rec1", "was_helpful": True},
+                    {"recommendation_id": "rec2", "was_helpful": False}
+                ]
+            }
+        }
+
+
+class RecommendationFeedbackStats(BaseModel):
+    """Statistiques détaillées des feedbacks"""
+    user_id: str
+    period_start: str
+    period_end: str
+    total_recommendations: int
+    feedback_given: int
+    feedback_pending: int
+    overall_helpfulness_rate: float
+    activity_breakdown: List[ActivityEffectiveness]
+    weekly_trends: List[Dict]
+    improvement_suggestions: List[str]
