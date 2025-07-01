@@ -12,7 +12,7 @@ from app.schemas.recommendation_dto import (
     RecommendationOut,
     RecommendationStats
 )
-from app.schemas.feedback_dto import FeedbackSummary, BulkFeedbackUpdate
+from app.schemas.recommendation_dto import FeedbackSummary, BulkFeedbackUpdate
 from app.core.security import get_current_user
 from app.db.models.user import User
 
