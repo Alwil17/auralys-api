@@ -6,25 +6,29 @@ from sqlalchemy import (
     Boolean,
     ForeignKey,
     UniqueConstraint,
+    DateTime,
 )
 from sqlalchemy.orm import relationship
 from app.db.models.base import Base
 import uuid
+from datetime import datetime, timezone
 
 
 class MoodEntry(Base):
     __tablename__ = "mood_entries"
-
+    
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    date = Column(String, nullable=False)  # Format: YYYY-MM-DD
-    mood = Column(Integer, nullable=False)  # 1 à 5
+    date = Column(String, nullable=False)  # Format YYYY-MM-DD
+    mood = Column(Integer, nullable=False)  # 1-5 scale
     notes = Column(String, nullable=True)
     activity = Column(String, nullable=True)
     sleep_hours = Column(Float, nullable=True)
-    stress_level = Column(Integer, nullable=True)  # 1 à 5
-    collected = Column(Boolean, default=True)  # cloud sync flag
-
+    stress_level = Column(Integer, nullable=True)  # 1-5 scale
+    collected = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    
     # Relations
     user = relationship("User", back_populates="mood_entries")
     recommendations = relationship("Recommendation", back_populates="mood_entry")
