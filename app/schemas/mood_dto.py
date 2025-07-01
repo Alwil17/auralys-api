@@ -40,7 +40,7 @@ class MoodEntryUpdate(BaseModel):
 
 class MoodEntryOut(MoodEntryBase):
     id: str
-    user_id: str
+    user_id: int
     collected: bool
 
     model_config = ConfigDict(from_attributes=True, extra="allow")
