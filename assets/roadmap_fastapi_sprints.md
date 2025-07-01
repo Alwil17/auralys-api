@@ -63,9 +63,9 @@
   _/stats/weekly : moyenne, évolution._
 - [x] **Allow feedback on reco**  
   _Champ was_helpful modifiable._
-- [ ] **Test: generate reco for low mood**  
+- [x] **Test: generate reco for low mood**  
   _Vérifie bonne activité suggérée._
-- [ ] **Test: weekly stats aggregation**  
+- [x] **Test: weekly stats aggregation**  
   _Données sur les 7 derniers jours._
 
 ## 📦 Déploiement & RGPD (en parallèle S4)
