@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Dict, Any
 from fastapi import HTTPException, status
 from datetime import datetime, timedelta
 import random
@@ -448,3 +448,186 @@ class RecommendationService:
             period_start=start_date.strftime("%Y-%m-%d"),
             period_end=end_date.strftime("%Y-%m-%d")
         )
+
+    def get_recommendation_by_id(
+        self, 
+        recommendation_id: str, 
+        user_id: str
+    ) -> RecommendationOut:
+        """Récupérer une recommandation par ID avec vérification de propriété"""
+        recommendation = self.recommendation_repository.get_recommendation_by_id(recommendation_id)
+        
+        if not recommendation:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Recommandation non trouvée"
+            )
+        
+        if recommendation.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Accès non autorisé à cette recommandation"
+            )
+        
+        return RecommendationOut.model_validate(recommendation)
+
+    def get_pending_feedback_recommendations(
+        self, 
+        user_id: str, 
+        limit: int = 10
+    ) -> List[RecommendationOut]:
+        """Récupérer les recommandations en attente de feedback"""
+        recommendations = self.recommendation_repository.get_pending_feedback_recommendations(
+            user_id, limit
+        )
+        return [RecommendationOut.model_validate(r) for r in recommendations]
+
+    def get_feedback_summary(self, user_id: str, days: int = 30) -> Dict[str, Any]:
+        """Obtenir un résumé des feedbacks utilisateur"""
+        recommendations = self.recommendation_repository.get_user_recommendations(user_id, 0, 1000)
+        
+        # Filtrer par période
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
+        recent_recommendations = [
+            r for r in recommendations 
+            if r.timestamp >= start_date and r.was_helpful is not None
+        ]
+        
+        if not recent_recommendations:
+            return {
+                "total_feedback": 0,
+                "helpful_rate": 0.0,
+                "most_helpful_activities": [],
+                "least_helpful_activities": [],
+                "feedback_trends": []
+            }
+        
+        helpful_count = len([r for r in recent_recommendations if r.was_helpful])
+        helpful_rate = (helpful_count / len(recent_recommendations)) * 100
+        
+        # Analyser les activités les plus/moins utiles
+        activity_feedback = {}
+        for reco in recent_recommendations:
+            activity = reco.suggested_activity
+            if activity not in activity_feedback:
+                activity_feedback[activity] = {"helpful": 0, "total": 0}
+            
+            activity_feedback[activity]["total"] += 1
+            if reco.was_helpful:
+                activity_feedback[activity]["helpful"] += 1
+        
+        # Calculer les taux d'efficacité
+        activity_rates = []
+        for activity, stats in activity_feedback.items():
+            if stats["total"] >= 2:  # Minimum 2 feedbacks
+                rate = (stats["helpful"] / stats["total"]) * 100
+                activity_rates.append({
+                    "activity": activity,
+                    "rate": rate,
+                    "total_feedback": stats["total"]
+                })
+        
+        activity_rates.sort(key=lambda x: x["rate"], reverse=True)
+        
+        return {
+            "total_feedback": len(recent_recommendations),
+            "helpful_rate": round(helpful_rate, 1),
+            "most_helpful_activities": activity_rates[:3],
+            "least_helpful_activities": activity_rates[-3:] if len(activity_rates) > 3 else [],
+            "feedback_trends": self._calculate_feedback_trends(recent_recommendations)
+        }
+
+    def _calculate_feedback_trends(self, recommendations: List) -> List[Dict]:
+        """Calculer les tendances de feedback par semaine"""
+        # Grouper par semaine
+        weekly_feedback = {}
+        for reco in recommendations:
+            week_start = reco.timestamp.date() - timedelta(days=reco.timestamp.weekday())
+            week_key = week_start.strftime("%Y-%m-%d")
+            
+            if week_key not in weekly_feedback:
+                weekly_feedback[week_key] = {"helpful": 0, "total": 0}
+            
+            weekly_feedback[week_key]["total"] += 1
+            if reco.was_helpful:
+                weekly_feedback[week_key]["helpful"] += 1
+        
+        # Convertir en liste triée
+        trends = []
+        for week, stats in sorted(weekly_feedback.items()):
+            rate = (stats["helpful"] / stats["total"]) * 100 if stats["total"] > 0 else 0
+            trends.append({
+                "week": week,
+                "helpful_rate": round(rate, 1),
+                "total_feedback": stats["total"]
+            })
+        
+        return trends
+
+    def get_helpful_recommendations(
+        self, 
+        user_id: str, 
+        days: int = 30, 
+        limit: int = 10
+    ) -> List[RecommendationOut]:
+        """Récupérer les recommandations utiles"""
+        recommendations = self.recommendation_repository.get_recommendations_with_feedback(
+            user_id, helpful=True, days=days
+        )
+        return [RecommendationOut.model_validate(r) for r in recommendations[:limit]]
+
+    def get_not_helpful_recommendations(
+        self, 
+        user_id: str, 
+        days: int = 30, 
+        limit: int = 10
+    ) -> List[RecommendationOut]:
+        """Récupérer les recommandations non utiles"""
+        recommendations = self.recommendation_repository.get_recommendations_with_feedback(
+            user_id, helpful=False, days=days
+        )
+        return [RecommendationOut.model_validate(r) for r in recommendations[:limit]]
+
+    def analyze_feedback_patterns(self, user_id: str) -> Dict[str, Any]:
+        """Analyser les patterns de feedback pour améliorer les recommandations futures"""
+        feedback_stats = self.recommendation_repository.get_activity_feedback_stats(user_id, 90)
+        
+        patterns = {
+            "preferred_activities": [],
+            "avoided_activities": [],
+            "time_patterns": {},
+            "mood_correlations": {},
+            "recommendations": []
+        }
+        
+        # Identifier les activités préférées (taux d'utilité > 70%)
+        for activity, stats in feedback_stats.items():
+            if stats["total"] >= 3:
+                helpfulness_rate = stats["helpful"] / stats["total"]
+                
+                if helpfulness_rate >= 0.7:
+                    patterns["preferred_activities"].append({
+                        "activity": activity,
+                        "rate": round(helpfulness_rate * 100, 1),
+                        "count": stats["total"]
+                    })
+                elif helpfulness_rate <= 0.3:
+                    patterns["avoided_activities"].append({
+                        "activity": activity,
+                        "rate": round(helpfulness_rate * 100, 1),
+                        "count": stats["total"]
+                    })
+        
+        # Générer des recommandations d'amélioration
+        if len(patterns["preferred_activities"]) > 0:
+            patterns["recommendations"].append(
+                "Privilégier les activités créatives et sociales qui semblent vous convenir"
+            )
+        
+        if len(patterns["avoided_activities"]) > 0:
+            patterns["recommendations"].append(
+                "Éviter temporairement les activités physiques intenses en période de stress"
+            )
+        
+        return patterns
