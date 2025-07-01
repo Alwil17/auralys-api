@@ -57,7 +57,7 @@
 
 - [x] **Create Recommendation model**  
   _Champs : mood_id, activity, was_helpful._
-- [ ] **Generate reco from mood entry**  
+- [x] **Generate reco from mood entry**  
   _Endpoint /recommendation/generate._
 - [ ] **Create stats endpoint**  
   _/stats/weekly : moyenne, évolution._
