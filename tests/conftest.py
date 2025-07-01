@@ -13,7 +13,7 @@ from app.db.base import Base, get_db
 from app.main import app
 from app.core.config_test import test_settings
 from tests.fixtures.mood_fixtures import *
-from tests.utils.test_data_seeder import TestDataSeeder
+from tests.utils.test_data_seeder import DataSeeder
 from app.core.security import create_access_token
 
 # Create in-memory SQLite database for tests
@@ -89,19 +89,19 @@ def user_auth(client):
 
 
 @pytest.fixture
-def test_data_seeder(db: Session) -> TestDataSeeder:
+def test_data_seeder(db):
     """Fixture pour le seeder de données de test"""
-    return TestDataSeeder(db)
+    return DataSeeder(db)
 
 
 @pytest.fixture
-def test_user_with_consent(db: Session, test_data_seeder: TestDataSeeder) -> User:
+def test_user_with_consent(db: Session, test_data_seeder: DataSeeder) -> User:
     """Utilisateur de test avec consentement"""
     return test_data_seeder.create_test_user(email="consent@test.com", consent=True)
 
 
 @pytest.fixture
-def test_user_no_consent(db: Session, test_data_seeder: TestDataSeeder) -> User:
+def test_user_no_consent(db: Session, test_data_seeder: DataSeeder) -> User:
     """Utilisateur de test sans consentement"""
     return test_data_seeder.create_test_user(email="noconsent@test.com", consent=False)
 
@@ -123,7 +123,7 @@ def auth_headers_with_consent(test_user_with_consent: User) -> Dict[str, str]:
 
 @pytest.fixture
 def auth_headers_other_user(
-    db: Session, test_data_seeder: TestDataSeeder
+    db: Session, test_data_seeder: DataSeeder
 ) -> Dict[str, str]:
     """Headers d'authentification pour un autre utilisateur"""
     other_user = test_data_seeder.create_test_user(
