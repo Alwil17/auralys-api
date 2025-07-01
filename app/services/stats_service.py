@@ -342,7 +342,7 @@ class StatsService:
             insights.append("Essayez d'enregistrer votre humeur plus régulièrement pour identifier des patterns.")
         
         # Analyser les corrélations sommeil-humeur
-        entries_with_sleep = [e for e in mood_entries if e.sleep_hours]
+        entries_with_sleep = [e for e in mood_entries if hasattr(e, 'sleep_hours') and e.sleep_hours]
         if len(entries_with_sleep) >= 5:
             good_sleep_moods = [e.mood for e in entries_with_sleep if e.sleep_hours >= 7]
             poor_sleep_moods = [e.mood for e in entries_with_sleep if e.sleep_hours < 6]
@@ -355,7 +355,7 @@ class StatsService:
                     insights.append("Votre humeur semble meilleure quand vous dormez bien (7h+). Privilégiez un bon sommeil.")
         
         # Analyser les tendances de stress
-        entries_with_stress = [e for e in mood_entries if e.stress_level]
+        entries_with_stress = [e for e in mood_entries if hasattr(e, 'stress_level') and e.stress_level]
         if entries_with_stress:
             avg_stress = sum(e.stress_level for e in entries_with_stress) / len(entries_with_stress)
             if avg_stress >= 4:
