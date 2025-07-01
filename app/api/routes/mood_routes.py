@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -14,7 +14,7 @@ from app.schemas.mood_dto import (
 from app.core.security import get_current_user
 from app.db.models.user import User
 
-router = APIRouter(prefix="/moods", tags=["mood"])
+router = APIRouter(prefix="/moods", tags=["Mood Tracking"])
 
 
 def get_mood_service(db: Session = Depends(get_db)) -> MoodService:
