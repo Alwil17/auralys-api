@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class UserCreateDTO(BaseModel):
-    name: str = Field(..., max_length=100)
+    name: Optional[str] = Field(None, max_length=100)
     email: EmailStr
     password: str
     role: Optional[str] = None
@@ -18,6 +18,8 @@ class UserUpdateDTO(BaseModel):
     role: Optional[str] = None
     password: Optional[str] = None
     consent: Optional[int] = 1
+    age: Optional[int] = 0
+    gender: Optional[str] = None
 
 
 class UserResponse(BaseModel):
@@ -26,6 +28,8 @@ class UserResponse(BaseModel):
     email: EmailStr
     role: Optional[str]
     consent: int
+    age: int
+    gender: str
     created_at: datetime
     updated_at: datetime
 
