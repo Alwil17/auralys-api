@@ -28,8 +28,8 @@ class UserResponse(BaseModel):
     email: EmailStr
     role: Optional[str]
     consent: int
-    age: int
-    gender: str
+    age: Optional[int]
+    gender: Optional[str]
     created_at: datetime
     updated_at: datetime
 
